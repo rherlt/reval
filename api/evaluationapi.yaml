@@ -14,7 +14,7 @@ servers:
     variables:
       protocol:
         description: Protocol top ue for the messages.
-        default: https
+        default: http
         enum:
           - http
           - https
@@ -25,7 +25,7 @@ servers:
           - localhost
       port:
         description: Port to be used. Local are 8080 (http) and 8443 (https).
-        default: '443'
+        default: '8080'
         enum:
           - '443'
           - '80'
