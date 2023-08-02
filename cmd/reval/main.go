@@ -4,12 +4,14 @@ import (
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/controller"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
-
+	//TODO: remove for production builds.
+	r.Use(cors.Default())
 	//TODO: https://github.com/deepmap/oapi-codegen/blob/master/examples/petstore-expanded/gin/petstore.go#L21C1-L48C1
 
 	r.GET("/openapi.json", controller.GetSwagger)
