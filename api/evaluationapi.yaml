@@ -13,7 +13,7 @@ servers:
   - url: '{protocol}://{environment}:{port}/api/'
     variables:
       protocol:
-        description: Protocol top ue for the messages.
+        description: Protocol to use for the messages.
         default: http
         enum:
           - http
@@ -24,13 +24,13 @@ servers:
         enum:
           - localhost
       port:
-        description: Port to be used. Local are 8080 (http) and 8443 (https).
+        description: Port to be used. Local ports are 8080 (http) and 8443 (https).
         default: '8080'
         enum:
+          - '8080'
           - '443'
           - '80'
           - '8443'
-          - '8080'
 tags:
   - name: Response Evaluation
     description: API for evaluating message responses.
