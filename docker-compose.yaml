@@ -1,0 +1,8 @@
+services:
+  reval:
+    build: 
+      context: .
+      dockerfile: build/reval/Dockerfile
+    image: local/reval:latest
+    ports:
+      - "8080:8080"

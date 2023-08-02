@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: Evaluation API
+  description: This API is for evaluating generated email responses from a LLM.
+  contact:
+    name: Rico Herlt
+    email: mail@rherlt.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: '0.1'
+servers:
+  - url: '{protocol}://{environment}:{port}/api/'
+    variables:
+      protocol:
+        description: Protocol top ue for the messages.
+        default: https
+        enum:
+          - http
+          - https
+      environment:
+        description: 'Environments: local (localhost)'
+        default: localhost
+        enum:
+          - localhost
+      port:
+        description: Port to be used. Local are 8080 (http) and 8443 (https).
+        default: '443'
+        enum:
+          - '443'
+          - '80'
+          - '8443'
+          - '8080'
+tags:
+  - name: Response Evaluation
+    description: API for evaluating message responses.
+paths:
+  /evaluation:
+    get:
+      tags:
+        - Response Evaluation
+      summary: Gets the next message for evaluation
+      description: Gets the next message for evaluation.
+      operationId: GetEvaluation
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          description: Gets an evaluation response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEvaluationResponse'
+        '404':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInformation'
+    post:
+      tags:
+        - Response Evaluation
+      summary: Posts the evaluation of the current evaluation response.
+      description: Posts the next message evaluation.
+      operationId: PostEvaluation
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody: 
+        content: 
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PostEvaluationRequest'
+      responses:
+        '200':
+          description: OK.
+        '404':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInformation'
+components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: JWT token with authorization information.
+      required: false
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      schema:
+        description: 'Bearer Token.'
+        type: string
+        pattern: (^(Bearer )?[A-Za-z0-9-_]*\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]*$)
+  schemas:
+    ErrorInformation:
+      type: object
+      description: Information about the error.
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Some unique error code.
+          example: 1001
+        message:
+          type: string
+          description: Error message.
+          example: Some very specific error ocured.
+    PostEvaluationRequest:
+      description: The result of the current evaluation.
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Unique id of the message evaluation.
+          example: 1234
+        evaluationResult:
+          type: string
+          default: neutral
+          enum:
+            - neutral
+            - positive
+            - negative
+      required: 
+        - id
+        - evaluationResult
+    GetEvaluationResponse:
+      description: The data of the next evaluation.
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Unique id of the evaluation.
+          example: 1234
+        response:
+          $ref: '#/components/schemas/Message'
+        request:
+          $ref: '#/components/schemas/Message'
+        evaluations:
+          $ref: '#/components/schemas/Evaluations'
+      required: 
+        - id
+        - response
+        - request
+        - evaluations
+    Message:
+      description: Message.
+      properties:
+        from:
+          type: string
+          description: Name of the author.
+          example: Max Mustermann
+        subject:
+          type: string
+          description: e.g. E-Mail subject.
+          example: Important email 1.
+        body:
+          type: string
+          description: e.g. E-Mail body. The actual message.
+          example: Hi, this is my email.
+        date:
+          type: string
+          description: string containing the date when the email was received in ISO 8601 format.
+          example: 2012-04-23T18:25:43.511Z
+      required: 
+        - from
+        - subject
+        - body
+        - date
+    Evaluations:
+      description: Evaluation statistics.
+      properties:
+        numNeutral:
+          type: integer
+          format: int32
+          description: number of neutral evaluations.
+        numPositive:
+          type: integer
+          format: int32
+          description: Number of positive evaluations.
+        numNegative:
+          type: integer
+          format: int32
+          description: number of negative evaluations.
+      required:
+        - numNeutral
+        - numPositive
+        - numNegative
+
