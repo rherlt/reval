@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch reval Go Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "cmd/reval/main.go"
+        },
+        {
+            "name": "Launch mailtransformer Go Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "cmd/mailtransformer/main.go"
+        },
+        {
+            "type": "firefox",
+            "request": "launch",
+            "name": "Launch Angular",
+            "url": "http://localhost:4200",
+            "reAttach": true,
+            "file": "${workspaceFolder}/ui/reval-web/src/index.html"
+        }
+    ]
+}
