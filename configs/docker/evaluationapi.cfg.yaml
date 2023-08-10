@@ -1,0 +1,6 @@
+package: evaluationapi
+generate:
+  gin-server: true
+  embedded-spec: true
+  models: true
+output: internal/api/evaluationapi/server.gen.go

@@ -6,7 +6,7 @@ import { PostEvaluationRequest } from 'src/openapi-client/evaluationapi';
 @Component({
   selector: 'app-evaluation',
   templateUrl: './evaluation.component.html',
-  styleUrls: ['./evaluation.component.sass']
+  styleUrls: ['./evaluation.component.css']
 })
 
 export class EvaluationComponent {
@@ -27,7 +27,7 @@ export class EvaluationComponent {
   onNext(){
 
     var req : PostEvaluationRequest = {
-      id: this.evaluation?.id || 0,
+      id: this.evaluation?.id ?? -1,
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Neutral
     };
 
@@ -36,7 +36,7 @@ export class EvaluationComponent {
 
   onPositive(){
     let req : PostEvaluationRequest = ({
-      id: this.evaluation?.id || 0,
+      id: this.evaluation?.id ?? -1,
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Positive
     });
     
@@ -45,7 +45,7 @@ export class EvaluationComponent {
 
   onNegative(){
     let req : PostEvaluationRequest = ({
-      id: this.evaluation?.id || 0,
+      id: this.evaluation?.id ?? -1,
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Negative
     });
    

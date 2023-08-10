@@ -22,11 +22,9 @@
             <p style="white-space: pre-line">{{ evaluation.response.body }}</p>
         </mat-card-content>
     </mat-card> 
-    <br>
-    <br>
     <section>
-    <div>
-        <button mat-raised-button color="neutral" (click)="onNext()" [matBadge]="evaluation.evaluations.numNeutral">Next</button>
+    <div class="example-button-row">
+        <button mat-raised-button class="green-button" (click)="onNext()" [matBadge]="evaluation.evaluations.numNeutral">Next</button>
         <button mat-raised-button color="primary" (click)="onPositive()" matBadgeColor="primary" [matBadge]="evaluation.evaluations.numPositive">Good 👍</button>
         <button mat-raised-button color="accent" (click)="onNegative()" matBadgeColor="accent" [matBadge]="evaluation.evaluations.numNegative">Bad 👎</button>
     </div>

@@ -5,7 +5,7 @@ echo done
 
 echo generating types...
 ~/go/bin/oapi-codegen \
-  -config evaluationapi.cfg.yaml \
+  -config ../configs/debug/evaluationapi.cfg.yaml \
     ../api/evaluationapi.yaml
 echo done
 
