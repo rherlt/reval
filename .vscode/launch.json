@@ -9,7 +9,10 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "cmd/reval/main.go"
+            "program": "cmd/reval/main.go",
+            "args": [
+                "${workspaceFolder}/configs/debug/"                
+            ]
         },
         {
             "name": "Launch mailtransformer Go Package",
