@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/rherlt/reval/internal/api/evaluationapi"
+	"github.com/rherlt/reval/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,9 +30,10 @@ func GetSwagger(c *gin.Context) {
 var evaluations []evaluationapi.GetEvaluationResponse
 var currentEvaluation = 0
 
-func init() {
-	// Open our jsonFile
-	jsonFile, err := os.Open("../../tmp/reval-transformed.json")
+func LoadDataFromFile() {
+	// Open jsonFile from dataPath
+	fmt.Println("Open data json from: " + config.Current.DataPath)
+	jsonFile, err := os.Open(config.Current.DataPath)
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -50,7 +52,7 @@ func init() {
 
 func (si EvaluationApiServerInterface) GetServerOptions() evaluationapi.GinServerOptions {
 	return evaluationapi.GinServerOptions{
-		BaseURL: "/api/",
+		BaseURL: config.Current.Gin_Api_BaseUrl,
 	}
 }
 

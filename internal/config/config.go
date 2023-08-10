@@ -8,11 +8,13 @@ import (
 
 type Config struct {
 	DataPath                          string
-	WebServerAddress                  string
 	Name                              string
 	Gin_Cors_AllowAllOrigins          bool
 	Gin_Cors_AdditionalAllowedHeaders []string
 	Gin_Web_Path                      string
+	Gin_WebServerAddress              string
+	Gin_Api_BaseUrl                   string
+	Gin_Web_BaseUrl                   string
 }
 
 var Current *Config = nil

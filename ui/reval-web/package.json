@@ -7,7 +7,7 @@
     "prestart": "npm run generate:api",
     "prebuild": "npm run generate:api",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href /ui/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
