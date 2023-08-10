@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Evaluation API
-  description: This API is for evaluating generated email responses from a LLM.
+  description: This API is for evaluating responses from a response generator.
   contact:
     name: Rico Herlt
     email: mail@rherlt.com
@@ -39,7 +39,7 @@ paths:
     get:
       tags:
         - Response Evaluation
-      summary: Gets the next message for evaluation
+      summary: Gets the next message for evaluation.
       description: Gets the next message for evaluation.
       operationId: GetEvaluation
       parameters:
@@ -146,7 +146,7 @@ components:
         - request
         - evaluations
     Message:
-      description: Message.
+      description: The message Message.
       properties:
         from:
           type: string

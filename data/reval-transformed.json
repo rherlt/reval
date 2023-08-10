@@ -1,0 +1,62 @@
+[
+  {
+    "evaluations": {
+      "numNegative": 0,
+      "numNeutral": 0,
+      "numPositive": 0
+    },
+    "id": 0,
+    "request": {
+      "body": "Sehr geehrte Damen und Herren,\nich wollte nur kurz nachfragen, ob meine Rechnung eingegangen ist bzw. ob die Abbuchung von meinem Konto erfolgreich war. Über eine kurze Rückmeldung wäre ich sehr dankbar.\nMit freundlichen Grüßen\n[Name des Kunden]",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": ""
+    },
+    "response": {
+      "body": "Sehr geehrter Herr/Frau [Name des Kunden],\n\nvielen Dank für Ihre Anfrage. Gerne teile ich Ihnen mit, dass Ihre Rechnung erfolgreich bei uns eingegangen ist. Die Abbuchung von Ihrem Konto war ebenfalls erfolgreich.\n\nFür weitere Fragen oder Informationen stehe ich Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen\n[Dein Name]\nKundenbetreuer Energieversorgung",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": ""
+    }
+  },
+  {
+    "evaluations": {
+      "numNegative": 0,
+      "numNeutral": 0,
+      "numPositive": 0
+    },
+    "id": 1,
+    "request": {
+      "body": "Sehr geehrte Damen und Herren,\n\nich möchte mich heute bei Ihnen bedanken und ein großes Lob aussprechen. Ich bin sehr zufrieden mit den Verbrauchsinformationen, die Sie mir zur Verfügung stellen. Der Umfang der Informationen ist genau richtig und gibt mir einen guten Überblick über meinen Energieverbrauch.\n\nBesonders gefällt mir, dass ich jederzeit online auf meine Verbrauchsdaten zugreifen kann. So kann ich meinen Verbrauch im Blick behalten und gegebenenfalls Anpassungen vornehmen, um Energie zu sparen.\n\nIch finde es toll, dass Sie sich so umfassend um Ihre Kunden kümmern und ihnen wertvolle Informationen zur Verfügung stellen. Das gibt mir das Gefühl, dass ich bei Ihnen in guten Händen bin.\n\nVielen Dank für Ihre tolle Arbeit!\n\nMit freundlichen Grüßen,\n\n[Name des Kunden]",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": ""
+    },
+    "response": {
+      "body": "Sehr geehrter Herr/Frau [Name des Kunden],\n\nvielen Dank für Ihre freundliche Mail und das positive Feedback! Es freut uns sehr zu hören, dass Sie mit unseren Verbrauchsinformationen zufrieden sind und einen guten Überblick über Ihren Energieverbrauch erhalten.\n\nUnser Ziel ist es, unseren Kunden wertvolle Informationen zur Verfügung zu stellen und ihnen dabei zu helfen, ihren Energieverbrauch im Blick zu behalten und gegebenenfalls Anpassungen vorzunehmen, um Energie zu sparen. Es freut uns, dass Ihnen besonders die Möglichkeit gefällt, jederzeit online auf Ihre Verbrauchsdaten zugreifen zu können.\n\nWir legen großen Wert darauf, unsere Kunden umfassend zu betreuen und ihnen einen exzellenten Service zu bieten. Ihr positives Feedback bestärkt uns in unserer Arbeit und wir werden weiterhin alles daran setzen, Ihnen den bestmöglichen Service zu bieten.\n\nNochmals vielen Dank für Ihr Lob! Sollten Sie weitere Fragen oder Anliegen haben, stehen wir Ihnen jederzeit gerne zur Verfügung.\n\nMit freundlichen Grüßen,\n\n[Dein Name]\nKundenbetreuer Energieversorgung",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": ""
+    }
+  },
+  {
+    "evaluations": {
+      "numNegative": 0,
+      "numNeutral": 0,
+      "numPositive": 0
+    },
+    "id": 2,
+    "request": {
+      "body": "Sehr geehrte Damen und Herren,\n\nich möchte mich heute einfach mal bei Ihnen bedanken! Ich bin Kunde Ihres Energieversorgungsunternehmens und ich bin wirklich beeindruckt von den Verbrauchsinformationen, die Sie mir zur Verfügung stellen.\n\nBesonders lobend möchte ich hervorheben, dass Sie sehr umfassende Informationen zu meinem Strom- und Gasverbrauch bereitstellen. Besonders nützlich finde ich auch die Vergleichsmöglichkeiten mit anderen Haushalten und die Möglichkeit, meine Verbräuche in verschiedenen Zeiträumen zu analysieren.\n\nDank Ihrer Informationen kann ich mein eigenes Verbrauchsverhalten besser verstehen und gezielt daran arbeiten, meinen Energieverbrauch zu optimieren. Auch die Möglichkeit, Informationen und Tipps zu Energiesparmaßnahmen zu erhalten, finde ich sehr nützlich.\n\nIch möchte mich nochmals ausdrücklich bei Ihnen dafür bedanken, dass Sie Ihren Kunden so umfassende und informative Verbrauchsinformationen zur Verfügung stellen. Das zeigt mir, dass Sie sich wirklich um das Wohl Ihrer Kunden kümmern.\n\nMit freundlichen Grüßen\n\n[Name des Kunden]",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": "Lob für umfassende und informative Verbrauchsinformationen"
+    },
+    "response": {
+      "body": "Sehr geehrter Herr/Frau [Name des Kunden],\n\nvielen Dank für Ihre freundliche E-Mail und das positive Feedback zu unseren Verbrauchsinformationen. Es freut uns sehr zu hören, dass Sie mit unserem Service zufrieden sind.\n\nUnser Ziel ist es, unseren Kunden nicht nur eine zuverlässige Energieversorgung zu bieten, sondern auch umfassende Informationen zur Verfügung zu stellen, um Ihnen bei der Optimierung Ihres Energieverbrauchs zu unterstützen. Es ist großartig zu hören, dass Sie unsere Vergleichsmöglichkeiten und Analysefunktionen als nützlich empfinden.\n\nWir sind stets bestrebt, unseren Kundenservice zu verbessern und Ihre Bedürfnisse zu erfüllen. Daher sind wir auch sehr dankbar für Ihr Feedback, da es uns hilft, unsere Dienstleistungen weiter zu optimieren.\n\nFalls Sie weitere Fragen oder Anregungen haben, zögern Sie bitte nicht, uns zu kontaktieren. Wir stehen Ihnen gerne zur Verfügung.\n\nWir bedanken uns nochmals herzlich für Ihr positives Feedback und wünschen Ihnen weiterhin eine angenehme Zusammenarbeit mit uns.\n\nMit freundlichen Grüßen\n\n[Dein Name]\nKundenbetreuer Energieversorgungsunternehmen",
+      "date": "",
+      "from": "chatgpt/gpt-3.5-turbo",
+      "subject": ""
+    }
+  }
+]

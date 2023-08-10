@@ -1,0 +1,17 @@
+.gitignore
+README.md
+api.module.ts
+api/api.ts
+api/responseEvaluation.service.ts
+configuration.ts
+encoder.ts
+git_push.sh
+index.ts
+model/errorInformation.ts
+model/evaluations.ts
+model/getEvaluationResponse.ts
+model/message.ts
+model/models.ts
+model/postEvaluationRequest.ts
+param.ts
+variables.ts

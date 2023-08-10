@@ -1,0 +1,34 @@
+
+<ng-container *ngIf="evaluation != undefined">
+    <h1>Evaluation Id {{ evaluation.id }}</h1>
+    <mat-card class="request-card">
+        <mat-card-header>
+            <mat-card-title>{{ evaluation.request.subject }}</mat-card-title>
+            <mat-card-subtitle>{{ evaluation.request.from }}</mat-card-subtitle>
+    <!--    <mat-card-subtitle>{{ evaluation.request.date }}</mat-card-subtitle> -->
+        </mat-card-header>
+        <mat-card-content>
+            <p style="white-space: pre-line">{{ evaluation.request.body }}</p>
+        </mat-card-content>
+    </mat-card>
+    <br>
+    <mat-card class="response-card">
+        <mat-card-header>
+            <mat-card-title>{{ evaluation.response.subject }}</mat-card-title>
+            <mat-card-subtitle>{{ evaluation.response.from }}</mat-card-subtitle>
+    <!--    <mat-card-subtitle>{{ evaluation.request.date }}</mat-card-subtitle> -->
+        </mat-card-header>
+        <mat-card-content>
+            <p style="white-space: pre-line">{{ evaluation.response.body }}</p>
+        </mat-card-content>
+    </mat-card> 
+    <br>
+    <br>
+    <section>
+    <div>
+        <button mat-raised-button color="neutral" (click)="onNext()" [matBadge]="evaluation.evaluations.numNeutral">Next</button>
+        <button mat-raised-button color="primary" (click)="onPositive()" matBadgeColor="primary" [matBadge]="evaluation.evaluations.numPositive">Good 👍</button>
+        <button mat-raised-button color="accent" (click)="onNegative()" matBadgeColor="accent" [matBadge]="evaluation.evaluations.numNegative">Bad 👎</button>
+    </div>
+    </section>
+</ng-container>
