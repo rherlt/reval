@@ -3,7 +3,7 @@
 # --------------------------------------------
 # Build the go backend application from source
 # --------------------------------------------
-FROM golang:1.20 AS go-build-stage
+FROM golang:1.20-bullseye AS go-build-stage
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.4
 # generate open api spec for go server
 RUN $GOPATH/bin/oapi-codegen -config configs/docker/evaluationapi.cfg.yaml api/evaluationapi.yaml
 # build application
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o /usr/local/bin/app/ ./... 
+RUN CGO_ENABLED=1 GOOS=linux go build -v -o /usr/local/bin/app/ ./... 
 
 # -----------------------------------------
 # Run the go backend tests in the container

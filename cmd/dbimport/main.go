@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/rherlt/reval/ent"
+	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
 	"github.com/rherlt/reval/internal/persistence"
@@ -59,14 +60,22 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 	fmt.Printf("%d evaluations loaded from: %s", len(*evals), filename)
 
 	for _, eval := range *evals {
-		// element is the element from someSlice for where we are
 
-		req, err := client.Request.Create().
-			SetExternalId(eval.Id).
-			SetFrom(eval.Request.From).
-			SetBody(eval.Request.Body).
-			//SetDate()
-			Save(ctx)
+		//try to load existing request by external id
+		req, err := client.Request.Query().
+			Where(request.ExternalId(eval.Id)).
+			First(ctx)
+
+		//in case of error create new record
+		if err != nil {
+
+			req, err = client.Request.Create().
+				SetExternalId(eval.Id).
+				SetFrom(eval.Request.From).
+				SetBody(eval.Request.Body).
+				//SetDate()
+				Save(ctx)
+		}
 
 		if err != nil {
 			fmt.Println(err)

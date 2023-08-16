@@ -7,3 +7,5 @@ services:
     image: local/reval:latest
     ports:
       - "8080:8080"
+    volumes:
+      - "./tmp/:/app/data/" #sqlite database path

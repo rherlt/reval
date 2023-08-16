@@ -27,7 +27,7 @@ export class EvaluationComponent {
   onNext(){
 
     var req : PostEvaluationRequest = {
-      id: this.evaluation?.id ?? -1,
+      id: this.evaluation?.id ?? "",
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Neutral
     };
 
@@ -36,7 +36,7 @@ export class EvaluationComponent {
 
   onPositive(){
     let req : PostEvaluationRequest = ({
-      id: this.evaluation?.id ?? -1,
+      id: this.evaluation?.id ?? "",
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Positive
     });
     
@@ -45,7 +45,7 @@ export class EvaluationComponent {
 
   onNegative(){
     let req : PostEvaluationRequest = ({
-      id: this.evaluation?.id ?? -1,
+      id: this.evaluation?.id ?? "",
       evaluationResult: PostEvaluationRequest.EvaluationResultEnum.Negative
     });
    

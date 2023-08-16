@@ -2,11 +2,8 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
@@ -17,29 +14,6 @@ import (
 
 type EvaluationApiServerInterface struct {
 	evaluationapi.ServerInterface
-}
-
-var evaluations []evaluationapi.GetEvaluationResponse
-var currentEvaluation = 0
-
-func LoadDataFromFile() {
-	// Open jsonFile from dataPath
-	fmt.Println("Open data json from: " + config.Current.DataPath)
-	jsonFile, err := os.Open(config.Current.DataPath)
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
-
-	// read our opened jsonFile as a byte array.
-	bytes, _ := io.ReadAll(jsonFile)
-
-	// we unmarshal our byteArray which contains our
-	// jsonFile's content into 'users' which we defined above
-	json.Unmarshal(bytes, &evaluations)
 }
 
 func (si EvaluationApiServerInterface) GetServerOptions() evaluationapi.GinServerOptions {

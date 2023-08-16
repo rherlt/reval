@@ -10,7 +10,6 @@ import (
 //see: https://dev.to/techschoolguru/load-config-from-file-environment-variables-in-golang-with-viper-2j2d
 
 type Config struct {
-	DataPath                          string
 	Name                              string
 	Gin_Cors_AllowAllOrigins          bool
 	Gin_Cors_AdditionalAllowedHeaders []string
