@@ -1,6 +1,9 @@
 package config
 
 import (
+	"log"
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -15,11 +18,13 @@ type Config struct {
 	Gin_WebServerAddress              string
 	Gin_Api_BaseUrl                   string
 	Gin_Web_BaseUrl                   string
+	Db_Type                           string
+	Db_Sqlite_Connection              string
 }
 
 var Current *Config = nil
 
-func LoadConfig(path string) (err error) {
+func loadConfig(path string) (err error) {
 
 	viper.AddConfigPath(".")
 	viper.AddConfigPath(path)
@@ -35,4 +40,17 @@ func LoadConfig(path string) (err error) {
 
 	err = viper.Unmarshal(&Current)
 	return
+}
+
+func Configure() {
+	//load config path from command line or use "." (current application path)
+	var configPath string = "."
+	if len(os.Args) > 1 {
+		configPath = os.Args[1:][0]
+	}
+
+	err := loadConfig(configPath)
+	if err != nil {
+		log.Fatal("cannot load config: ", err)
+	}
 }

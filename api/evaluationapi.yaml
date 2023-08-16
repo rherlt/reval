@@ -112,8 +112,7 @@ components:
       description: The result of the current evaluation.
       properties:
         id:
-          type: integer
-          format: int32
+          type: string
           description: Unique id of the message evaluation.
           example: 1234
         evaluationResult:
@@ -130,8 +129,7 @@ components:
       description: The data of the next evaluation.
       properties:
         id:
-          type: integer
-          format: int32
+          type: string
           description: Unique id of the evaluation.
           example: 1234
         response:
