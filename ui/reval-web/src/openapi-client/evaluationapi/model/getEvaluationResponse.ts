@@ -20,7 +20,7 @@ export interface GetEvaluationResponse {
     /**
      * Unique id of the evaluation.
      */
-    id: number;
+    id: string;
     response: Message;
     request: Message;
     evaluations: Evaluations;
