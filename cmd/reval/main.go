@@ -17,9 +17,6 @@ func main() {
 
 	config.Configure()
 
-	//todo replace with load from database
-	controller.LoadDataFromFile()
-
 	//setup gin webserver
 	r := gin.Default()
 

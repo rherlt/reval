@@ -50,7 +50,6 @@ FROM gcr.io/distroless/base-debian11 AS build-release-stage
 WORKDIR /app
 
 COPY --from=go-build-stage /usr/local/bin/app/ /app/configs/docker/reval.env /app/
-COPY --from=go-build-stage /app/data /app/data
 COPY --from=node-build-stage /app/ui/reval-web/dist/reval-web/ /app/www
 
 # make sure to run webserver in release mode
