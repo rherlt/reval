@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/rherlt/reval/internal/api/evaluationapi"
@@ -45,7 +46,7 @@ func main() {
 	for i := 0; i < len(mails); i++ {
 		var currentMail = mails[i]
 		transformedMails = append(transformedMails, evaluationapi.GetEvaluationResponse{
-			Id: string(i),
+			Id: strconv.Itoa(i),
 			Request: evaluationapi.Message{
 				Body:    GetStringAfterInBetween(currentMail.RequestMail, "Betreff: ", "\n\n"),
 				From:    "chatgpt/gpt-3.5-turbo",
