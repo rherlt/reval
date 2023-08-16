@@ -45,7 +45,7 @@ func main() {
 	for i := 0; i < len(mails); i++ {
 		var currentMail = mails[i]
 		transformedMails = append(transformedMails, evaluationapi.GetEvaluationResponse{
-			Id: int32(i),
+			Id: string(i),
 			Request: evaluationapi.Message{
 				Body:    GetStringAfterInBetween(currentMail.RequestMail, "Betreff: ", "\n\n"),
 				From:    "chatgpt/gpt-3.5-turbo",
