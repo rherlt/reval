@@ -7,6 +7,7 @@ import (
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
 	"github.com/rherlt/reval/internal/controller"
+	"github.com/rherlt/reval/internal/data"
 	"github.com/rherlt/reval/internal/persistence"
 
 	"github.com/gin-contrib/cors"
@@ -38,10 +39,21 @@ func main() {
 	si := new(controller.EvaluationApiServerInterface)
 	evaluationapi.RegisterHandlersWithOptions(r, si, si.GetServerOptions())
 
+	importRequired := !persistence.DbExistis()
+
 	//setup database
 	err := persistence.SetupDb()
+	defer persistence.CloseClient()
+
 	if err != nil {
 		log.Fatal("cannot setup database: ", err)
+	}
+
+	if importRequired {
+		err = data.ImportData()
+		if err != nil {
+			log.Fatal("cannot import data: ", err)
+		}
 	}
 
 	//run webserver

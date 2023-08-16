@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,6 +20,9 @@ type NotFoundError interface {
 	error
 }
 
+var p_client *ent.Client
+var p_err error
+
 func SetupDb() error {
 
 	if config.Current.Db_Type == "sqlite" {
@@ -27,8 +32,27 @@ func SetupDb() error {
 	return nil
 }
 
-var p_client *ent.Client
-var p_err error
+func DbExistis() bool {
+
+	if config.Current.Db_Type == "sqlite" {
+		return dbExistsSqlite()
+	}
+
+	return false
+}
+
+func dbExistsSqlite() bool {
+
+	//extract filename from sqlite connection string
+	filename := strings.Split(strings.Split(config.Current.Db_Sqlite_Connection, "file:")[1], "?")[0]
+
+	//check if exists
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
 
 func GetClient() (*ent.Client, error) {
 
@@ -39,6 +63,18 @@ func GetClient() (*ent.Client, error) {
 	}
 
 	return p_client, p_err
+}
+
+func CloseClient() error {
+
+	if p_client != nil {
+		if config.Current.Db_Type == "sqlite" {
+			p_client.Close()
+			p_client = nil
+		}
+	}
+
+	return p_err
 }
 
 func setupSqlite() error {
@@ -91,6 +127,22 @@ func GetRequestById(ctx context.Context, requestId uuid.UUID) (*ent.Request, err
 		First(ctx)
 
 	return request, err
+}
+
+func GetEvaluationCountByResponseId(ctx context.Context, responseId uuid.UUID) (int, int, int, error) {
+
+	/*client, err := GetClient()
+	if err != nil {
+		return -1, -1, -1, fmt.Errorf("failed to get database client: %w", err)
+	}
+
+	var count []struct {
+		Positive, Negative, Neutral int
+	}
+	*/
+	//TODO finish
+
+	return 0, 0, 0, nil
 }
 
 func GetResponseById(ctx context.Context, responseId uuid.UUID) (*ent.Response, error) {

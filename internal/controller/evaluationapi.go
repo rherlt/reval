@@ -43,6 +43,12 @@ func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResp
 		fmt.Println(err)
 	}
 
+	pos, neg, neu, err := persistence.GetEvaluationCountByResponseId(ctx, response.ID)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	var res = evaluationapi.GetEvaluationResponse{
 		Id: response.ID.String(),
 		Response: evaluationapi.Message{
@@ -52,9 +58,9 @@ func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResp
 			Date:    response.Date.GoString(),
 		},
 		Evaluations: evaluationapi.Evaluations{
-			NumNegative: 0,
-			NumNeutral:  0,
-			NumPositive: 0,
+			NumNegative: int32(neg),
+			NumNeutral:  int32(neu),
+			NumPositive: int32(pos),
 		},
 		Request: evaluationapi.Message{
 			From:    request.From,

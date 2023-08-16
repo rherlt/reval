@@ -17,6 +17,7 @@ type Config struct {
 	Gin_WebServerAddress              string
 	Gin_Api_BaseUrl                   string
 	Gin_Web_BaseUrl                   string
+	Data_Import_Glob                  string
 	Db_Type                           string
 	Db_Sqlite_Connection              string
 }
