@@ -15,12 +15,14 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { EvaluationComponent } from './evaluation/evaluation.component';
 import { AuthConfigModule } from './auth/auth-config.module';
 import { UserprofileComponent } from './userprofile/userprofile.component';
+import { ListComponent } from './list/list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EvaluationComponent,
     UserprofileComponent,
+    ListComponent
   ],
   imports: [
     BrowserModule,
