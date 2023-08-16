@@ -18,7 +18,7 @@ export interface PostEvaluationRequest {
     /**
      * Unique id of the message evaluation.
      */
-    id: number;
+    id: string;
     evaluationResult: PostEvaluationRequest.EvaluationResultEnum;
 }
 export namespace PostEvaluationRequest {

@@ -1,53 +1,19 @@
 package controller
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
+	"github.com/rherlt/reval/internal/persistence"
 
 	"github.com/gin-gonic/gin"
 )
 
 type EvaluationApiServerInterface struct {
 	evaluationapi.ServerInterface
-}
-
-func GetSwagger(c *gin.Context) {
-
-	swagger, error := evaluationapi.GetSwagger()
-
-	if error != nil {
-		c.Status(http.StatusInternalServerError)
-	}
-	c.PureJSON(http.StatusOK, swagger)
-}
-
-var evaluations []evaluationapi.GetEvaluationResponse
-var currentEvaluation = 0
-
-func LoadDataFromFile() {
-	// Open jsonFile from dataPath
-	fmt.Println("Open data json from: " + config.Current.DataPath)
-	jsonFile, err := os.Open(config.Current.DataPath)
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
-
-	// read our opened jsonFile as a byte array.
-	bytes, _ := io.ReadAll(jsonFile)
-
-	// we unmarshal our byteArray which contains our
-	// jsonFile's content into 'users' which we defined above
-	json.Unmarshal(bytes, &evaluations)
 }
 
 func (si EvaluationApiServerInterface) GetServerOptions() evaluationapi.GinServerOptions {
@@ -61,15 +27,55 @@ func (si EvaluationApiServerInterface) GetEvaluation(c *gin.Context, params eval
 	var response = si.getNext()
 	c.IndentedJSON(http.StatusOK, response)
 }
+
 func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResponse {
 
-	var result = evaluations[currentEvaluation%len(evaluations)]
-	currentEvaluation++
-	return result
+	ctx := context.Background()
+
+	response, err := persistence.GetNextResponse(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	request, err := persistence.GetRequestById(ctx, response.RequestId)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	pos, neg, neu, err := persistence.GetEvaluationCountByResponseId(ctx, response.ID)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var res = evaluationapi.GetEvaluationResponse{
+		Id: response.ID.String(),
+		Response: evaluationapi.Message{
+			From:    response.From,
+			Subject: response.Subject,
+			Body:    response.Body,
+			Date:    response.Date.GoString(),
+		},
+		Evaluations: evaluationapi.Evaluations{
+			NumNegative: int32(neg),
+			NumNeutral:  int32(neu),
+			NumPositive: int32(pos),
+		},
+		Request: evaluationapi.Message{
+			From:    request.From,
+			Subject: request.Subject,
+			Body:    request.Body,
+			Date:    request.Date.GoString(),
+		},
+	}
+
+	return res
 }
 
 func (si EvaluationApiServerInterface) PostEvaluation(c *gin.Context, params evaluationapi.PostEvaluationParams) {
 
+	ctx := context.Background()
 	requestBody := new(evaluationapi.PostEvaluationRequest)
 
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -81,30 +87,17 @@ func (si EvaluationApiServerInterface) PostEvaluation(c *gin.Context, params eva
 		return
 	}
 
-	var found = idExists(requestBody.Id, evaluations)
-	if !found {
+	user, err := persistence.GetDemoUser(ctx)
+
+	evaluation, err := persistence.CreateEvaluationForResponseId(ctx, requestBody.Id, string(requestBody.EvaluationResult), user.ID)
+	if err == nil {
+		fmt.Println(err)
+	}
+
+	if evaluation == nil {
 		c.Status(http.StatusNotFound)
 		return
 	}
 
-	switch requestBody.EvaluationResult {
-	case evaluationapi.Negative:
-		evaluations[requestBody.Id].Evaluations.NumNegative++
-	case evaluationapi.Positive:
-		evaluations[requestBody.Id].Evaluations.NumPositive++
-	case evaluationapi.Neutral:
-		evaluations[requestBody.Id].Evaluations.NumNeutral++
-	}
-
 	c.Status(http.StatusOK)
-}
-
-func idExists(value int32, data []evaluationapi.GetEvaluationResponse) (exists bool) {
-
-	for _, search := range data {
-		if search.Id == value {
-			return true
-		}
-	}
-	return false
 }
