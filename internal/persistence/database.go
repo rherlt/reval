@@ -11,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rherlt/reval/ent"
+	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
 )
 
@@ -131,18 +133,35 @@ func GetRequestById(ctx context.Context, requestId uuid.UUID) (*ent.Request, err
 
 func GetEvaluationCountByResponseId(ctx context.Context, responseId uuid.UUID) (int, int, int, error) {
 
-	/*client, err := GetClient()
+	client, err := GetClient()
 	if err != nil {
 		return -1, -1, -1, fmt.Errorf("failed to get database client: %w", err)
 	}
 
-	var count []struct {
-		Positive, Negative, Neutral int
+	var v []struct {
+		Count            int    `json:"count"`
+		EvaluationResult string `json:"evaluation_result"`
 	}
-	*/
-	//TODO finish
 
-	return 0, 0, 0, nil
+	err = client.Evaluation.Query().
+		GroupBy(evaluation.FieldEvaluationResult).
+		Aggregate(ent.Count()).
+		Scan(ctx, &v)
+
+	positive, negative, neutral := 0, 0, 0
+
+	for i := range v {
+		switch v[i].EvaluationResult {
+		case string(evaluationapi.Positive):
+			positive = v[i].Count
+		case string(evaluationapi.Negative):
+			negative = v[i].Count
+		case string(evaluationapi.Neutral):
+			neutral = v[i].Count
+		}
+	}
+
+	return positive, negative, neutral, nil
 }
 
 func GetResponseById(ctx context.Context, responseId uuid.UUID) (*ent.Response, error) {
