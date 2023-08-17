@@ -1,1 +1,28 @@
-<p>list works!</p>
+<mat-list class="inline-list">
+    <mat-list-item *ngFor="let i of [1,2,3,4]" style="height: 100%;">
+        <mat-card class="scenario-card">
+            <mat-card-header>
+                <mat-card-title>
+                    Szenario {{i}}
+                </mat-card-title>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <div class="scenario-details">
+                <p>LLM: {{i}}</p>
+                <p>Prompt ID: {{i}}</p>
+                <ngx-charts-pie-chart
+                    [view]="view"
+                    [customColors]="customColors"
+                    [results]="evaluations"
+                    [gradient]="gradient"
+                    [legend]="showLegend"
+                    [labels]="showLabels"
+                    [doughnut]="isDoughnut"
+                    (select)="onSelect($event)"
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"
+                ></ngx-charts-pie-chart>
+            </div>
+        </mat-card>
+    </mat-list-item>
+</mat-list>

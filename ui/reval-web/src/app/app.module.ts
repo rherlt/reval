@@ -14,6 +14,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EvaluationComponent } from './evaluation/evaluation.component';
 import { ListComponent } from './list/list.component';
+import { MatListModule } from '@angular/material/list';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { ListComponent } from './list/list.component';
     MatCardModule,
     MatGridListModule,
     MatBadgeModule,
+    MatListModule,
+    NgxChartsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
