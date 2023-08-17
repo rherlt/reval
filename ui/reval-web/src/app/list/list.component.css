@@ -1,0 +1,19 @@
+.inline-list {
+    display: flex;
+    height: fit-content;
+}
+
+.scenario-card {
+    width: 100%;
+    padding: 10px;
+    border: thin solid;
+    border-color:grey;
+}
+
+mat-divider {
+    margin-bottom: 5px;
+}
+
+mat-card-heaer {
+    padding: 5px;
+}
