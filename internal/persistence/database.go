@@ -202,11 +202,6 @@ func UpsertUser(ctx context.Context, externalId, name, userType string) (uuid.UU
 		return uuid.Nil, fmt.Errorf("failed to get database client: %w", err)
 	}
 
-	//default user type if not given
-	if userType == "" {
-		userType = "human"
-	}
-
 	//insert or update... if user exists, update name column
 	userId, err := client.User.
 		Create().
@@ -247,7 +242,8 @@ func CreateEvaluationForResponseId(ctx context.Context, responseId string, evalu
 		return nil, fmt.Errorf("failed to get database client: %w", err)
 	}
 
-	evaluation, err := client.Evaluation.Create().
+	evaluation, err := client.Evaluation.
+		Create().
 		SetUserID(userId).
 		SetResponseID(response.ID).
 		SetEvaluationResult(evaluationResult).
@@ -259,4 +255,57 @@ func CreateEvaluationForResponseId(ctx context.Context, responseId string, evalu
 	}
 
 	return evaluation, err
+}
+
+func GetScenarios(ctx context.Context) ([]*ent.Scenario, error) {
+
+	client, err := GetClient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get database client: %w", err)
+	}
+
+	scenarios, err := client.Scenario.
+		Query().
+		All(ctx)
+
+	return scenarios, err
+}
+
+func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount int32) []evaluationapi.NameValuePair {
+
+	client, err := GetClient()
+	if err != nil {
+		fmt.Errorf("failed to get database client: %w", err)
+		return []evaluationapi.NameValuePair{}
+	}
+
+	var v []struct {
+		Count int `json:"count"`
+	}
+
+	err = client.Evaluation.
+		Query().
+		Where(
+			evaluation.And(
+				evaluation.HasUserWith(user.Type(config.Current.Oidc_Authority)),
+				evaluation.HasResponseWith(response.ScenarioId(scenarioId)),
+			),
+		).
+		Aggregate(ent.Count()).
+		Scan(ctx, &v)
+
+	var currentCount int32 = int32(v[0].Count)
+
+	result := [...]evaluationapi.NameValuePair{
+		{
+			Name:  "rated",
+			Value: currentCount,
+		},
+		{
+			Name:  "unrated",
+			Value: totalCount - currentCount,
+		},
+	}
+
+	return result[:]
 }

@@ -25,6 +25,12 @@ type ScenarioCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetName sets the "name" field.
+func (sc *ScenarioCreate) SetName(s string) *ScenarioCreate {
+	sc.mutation.SetName(s)
+	return sc
+}
+
 // SetExternalId sets the "externalId" field.
 func (sc *ScenarioCreate) SetExternalId(s string) *ScenarioCreate {
 	sc.mutation.SetExternalId(s)
@@ -35,20 +41,6 @@ func (sc *ScenarioCreate) SetExternalId(s string) *ScenarioCreate {
 func (sc *ScenarioCreate) SetNillableExternalId(s *string) *ScenarioCreate {
 	if s != nil {
 		sc.SetExternalId(*s)
-	}
-	return sc
-}
-
-// SetName sets the "name" field.
-func (sc *ScenarioCreate) SetName(s string) *ScenarioCreate {
-	sc.mutation.SetName(s)
-	return sc
-}
-
-// SetNillableName sets the "name" field if the given value is not nil.
-func (sc *ScenarioCreate) SetNillableName(s *string) *ScenarioCreate {
-	if s != nil {
-		sc.SetName(*s)
 	}
 	return sc
 }
@@ -153,6 +145,9 @@ func (sc *ScenarioCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (sc *ScenarioCreate) check() error {
+	if _, ok := sc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Scenario.name"`)}
+	}
 	return nil
 }
 
@@ -189,13 +184,13 @@ func (sc *ScenarioCreate) createSpec() (*Scenario, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := sc.mutation.ExternalId(); ok {
-		_spec.SetField(scenario.FieldExternalId, field.TypeString, value)
-		_node.ExternalId = value
-	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.SetField(scenario.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := sc.mutation.ExternalId(); ok {
+		_spec.SetField(scenario.FieldExternalId, field.TypeString, value)
+		_node.ExternalId = value
 	}
 	if value, ok := sc.mutation.Desctiption(); ok {
 		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
@@ -228,7 +223,7 @@ func (sc *ScenarioCreate) createSpec() (*Scenario, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.Scenario.Create().
-//		SetExternalId(v).
+//		SetName(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -237,7 +232,7 @@ func (sc *ScenarioCreate) createSpec() (*Scenario, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ScenarioUpsert) {
-//			SetExternalId(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (sc *ScenarioCreate) OnConflict(opts ...sql.ConflictOption) *ScenarioUpsertOne {
@@ -273,6 +268,18 @@ type (
 	}
 )
 
+// SetName sets the "name" field.
+func (u *ScenarioUpsert) SetName(v string) *ScenarioUpsert {
+	u.Set(scenario.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ScenarioUpsert) UpdateName() *ScenarioUpsert {
+	u.SetExcluded(scenario.FieldName)
+	return u
+}
+
 // SetExternalId sets the "externalId" field.
 func (u *ScenarioUpsert) SetExternalId(v string) *ScenarioUpsert {
 	u.Set(scenario.FieldExternalId, v)
@@ -288,24 +295,6 @@ func (u *ScenarioUpsert) UpdateExternalId() *ScenarioUpsert {
 // ClearExternalId clears the value of the "externalId" field.
 func (u *ScenarioUpsert) ClearExternalId() *ScenarioUpsert {
 	u.SetNull(scenario.FieldExternalId)
-	return u
-}
-
-// SetName sets the "name" field.
-func (u *ScenarioUpsert) SetName(v string) *ScenarioUpsert {
-	u.Set(scenario.FieldName, v)
-	return u
-}
-
-// UpdateName sets the "name" field to the value that was provided on create.
-func (u *ScenarioUpsert) UpdateName() *ScenarioUpsert {
-	u.SetExcluded(scenario.FieldName)
-	return u
-}
-
-// ClearName clears the value of the "name" field.
-func (u *ScenarioUpsert) ClearName() *ScenarioUpsert {
-	u.SetNull(scenario.FieldName)
 	return u
 }
 
@@ -393,6 +382,20 @@ func (u *ScenarioUpsertOne) Update(set func(*ScenarioUpsert)) *ScenarioUpsertOne
 	return u
 }
 
+// SetName sets the "name" field.
+func (u *ScenarioUpsertOne) SetName(v string) *ScenarioUpsertOne {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ScenarioUpsertOne) UpdateName() *ScenarioUpsertOne {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.UpdateName()
+	})
+}
+
 // SetExternalId sets the "externalId" field.
 func (u *ScenarioUpsertOne) SetExternalId(v string) *ScenarioUpsertOne {
 	return u.Update(func(s *ScenarioUpsert) {
@@ -411,27 +414,6 @@ func (u *ScenarioUpsertOne) UpdateExternalId() *ScenarioUpsertOne {
 func (u *ScenarioUpsertOne) ClearExternalId() *ScenarioUpsertOne {
 	return u.Update(func(s *ScenarioUpsert) {
 		s.ClearExternalId()
-	})
-}
-
-// SetName sets the "name" field.
-func (u *ScenarioUpsertOne) SetName(v string) *ScenarioUpsertOne {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.SetName(v)
-	})
-}
-
-// UpdateName sets the "name" field to the value that was provided on create.
-func (u *ScenarioUpsertOne) UpdateName() *ScenarioUpsertOne {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.UpdateName()
-	})
-}
-
-// ClearName clears the value of the "name" field.
-func (u *ScenarioUpsertOne) ClearName() *ScenarioUpsertOne {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.ClearName()
 	})
 }
 
@@ -609,7 +591,7 @@ func (scb *ScenarioCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ScenarioUpsert) {
-//			SetExternalId(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (scb *ScenarioCreateBulk) OnConflict(opts ...sql.ConflictOption) *ScenarioUpsertBulk {
@@ -688,6 +670,20 @@ func (u *ScenarioUpsertBulk) Update(set func(*ScenarioUpsert)) *ScenarioUpsertBu
 	return u
 }
 
+// SetName sets the "name" field.
+func (u *ScenarioUpsertBulk) SetName(v string) *ScenarioUpsertBulk {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ScenarioUpsertBulk) UpdateName() *ScenarioUpsertBulk {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.UpdateName()
+	})
+}
+
 // SetExternalId sets the "externalId" field.
 func (u *ScenarioUpsertBulk) SetExternalId(v string) *ScenarioUpsertBulk {
 	return u.Update(func(s *ScenarioUpsert) {
@@ -706,27 +702,6 @@ func (u *ScenarioUpsertBulk) UpdateExternalId() *ScenarioUpsertBulk {
 func (u *ScenarioUpsertBulk) ClearExternalId() *ScenarioUpsertBulk {
 	return u.Update(func(s *ScenarioUpsert) {
 		s.ClearExternalId()
-	})
-}
-
-// SetName sets the "name" field.
-func (u *ScenarioUpsertBulk) SetName(v string) *ScenarioUpsertBulk {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.SetName(v)
-	})
-}
-
-// UpdateName sets the "name" field to the value that was provided on create.
-func (u *ScenarioUpsertBulk) UpdateName() *ScenarioUpsertBulk {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.UpdateName()
-	})
-}
-
-// ClearName clears the value of the "name" field.
-func (u *ScenarioUpsertBulk) ClearName() *ScenarioUpsertBulk {
-	return u.Update(func(s *ScenarioUpsert) {
-		s.ClearName()
 	})
 }
 

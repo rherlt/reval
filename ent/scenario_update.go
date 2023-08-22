@@ -30,6 +30,12 @@ func (su *ScenarioUpdate) Where(ps ...predicate.Scenario) *ScenarioUpdate {
 	return su
 }
 
+// SetName sets the "name" field.
+func (su *ScenarioUpdate) SetName(s string) *ScenarioUpdate {
+	su.mutation.SetName(s)
+	return su
+}
+
 // SetExternalId sets the "externalId" field.
 func (su *ScenarioUpdate) SetExternalId(s string) *ScenarioUpdate {
 	su.mutation.SetExternalId(s)
@@ -47,26 +53,6 @@ func (su *ScenarioUpdate) SetNillableExternalId(s *string) *ScenarioUpdate {
 // ClearExternalId clears the value of the "externalId" field.
 func (su *ScenarioUpdate) ClearExternalId() *ScenarioUpdate {
 	su.mutation.ClearExternalId()
-	return su
-}
-
-// SetName sets the "name" field.
-func (su *ScenarioUpdate) SetName(s string) *ScenarioUpdate {
-	su.mutation.SetName(s)
-	return su
-}
-
-// SetNillableName sets the "name" field if the given value is not nil.
-func (su *ScenarioUpdate) SetNillableName(s *string) *ScenarioUpdate {
-	if s != nil {
-		su.SetName(*s)
-	}
-	return su
-}
-
-// ClearName clears the value of the "name" field.
-func (su *ScenarioUpdate) ClearName() *ScenarioUpdate {
-	su.mutation.ClearName()
 	return su
 }
 
@@ -187,17 +173,14 @@ func (su *ScenarioUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := su.mutation.Name(); ok {
+		_spec.SetField(scenario.FieldName, field.TypeString, value)
+	}
 	if value, ok := su.mutation.ExternalId(); ok {
 		_spec.SetField(scenario.FieldExternalId, field.TypeString, value)
 	}
 	if su.mutation.ExternalIdCleared() {
 		_spec.ClearField(scenario.FieldExternalId, field.TypeString)
-	}
-	if value, ok := su.mutation.Name(); ok {
-		_spec.SetField(scenario.FieldName, field.TypeString, value)
-	}
-	if su.mutation.NameCleared() {
-		_spec.ClearField(scenario.FieldName, field.TypeString)
 	}
 	if value, ok := su.mutation.Desctiption(); ok {
 		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
@@ -276,6 +259,12 @@ type ScenarioUpdateOne struct {
 	mutation *ScenarioMutation
 }
 
+// SetName sets the "name" field.
+func (suo *ScenarioUpdateOne) SetName(s string) *ScenarioUpdateOne {
+	suo.mutation.SetName(s)
+	return suo
+}
+
 // SetExternalId sets the "externalId" field.
 func (suo *ScenarioUpdateOne) SetExternalId(s string) *ScenarioUpdateOne {
 	suo.mutation.SetExternalId(s)
@@ -293,26 +282,6 @@ func (suo *ScenarioUpdateOne) SetNillableExternalId(s *string) *ScenarioUpdateOn
 // ClearExternalId clears the value of the "externalId" field.
 func (suo *ScenarioUpdateOne) ClearExternalId() *ScenarioUpdateOne {
 	suo.mutation.ClearExternalId()
-	return suo
-}
-
-// SetName sets the "name" field.
-func (suo *ScenarioUpdateOne) SetName(s string) *ScenarioUpdateOne {
-	suo.mutation.SetName(s)
-	return suo
-}
-
-// SetNillableName sets the "name" field if the given value is not nil.
-func (suo *ScenarioUpdateOne) SetNillableName(s *string) *ScenarioUpdateOne {
-	if s != nil {
-		suo.SetName(*s)
-	}
-	return suo
-}
-
-// ClearName clears the value of the "name" field.
-func (suo *ScenarioUpdateOne) ClearName() *ScenarioUpdateOne {
-	suo.mutation.ClearName()
 	return suo
 }
 
@@ -463,17 +432,14 @@ func (suo *ScenarioUpdateOne) sqlSave(ctx context.Context) (_node *Scenario, err
 			}
 		}
 	}
+	if value, ok := suo.mutation.Name(); ok {
+		_spec.SetField(scenario.FieldName, field.TypeString, value)
+	}
 	if value, ok := suo.mutation.ExternalId(); ok {
 		_spec.SetField(scenario.FieldExternalId, field.TypeString, value)
 	}
 	if suo.mutation.ExternalIdCleared() {
 		_spec.ClearField(scenario.FieldExternalId, field.TypeString)
-	}
-	if value, ok := suo.mutation.Name(); ok {
-		_spec.SetField(scenario.FieldName, field.TypeString, value)
-	}
-	if suo.mutation.NameCleared() {
-		_spec.ClearField(scenario.FieldName, field.TypeString)
 	}
 	if value, ok := suo.mutation.Desctiption(); ok {
 		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
