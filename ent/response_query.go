@@ -16,6 +16,7 @@ import (
 	"github.com/rherlt/reval/ent/predicate"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 )
 
 // ResponseQuery is the builder for querying Response entities.
@@ -26,6 +27,7 @@ type ResponseQuery struct {
 	inters          []Interceptor
 	predicates      []predicate.Response
 	withRequest     *RequestQuery
+	withScenario    *ScenarioQuery
 	withEvaluations *EvaluationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -78,6 +80,28 @@ func (rq *ResponseQuery) QueryRequest() *RequestQuery {
 			sqlgraph.From(response.Table, response.FieldID, selector),
 			sqlgraph.To(request.Table, request.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, response.RequestTable, response.RequestColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScenario chains the current query on the "scenario" edge.
+func (rq *ResponseQuery) QueryScenario() *ScenarioQuery {
+	query := (&ScenarioClient{config: rq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(response.Table, response.FieldID, selector),
+			sqlgraph.To(scenario.Table, scenario.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, response.ScenarioTable, response.ScenarioColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,6 +324,7 @@ func (rq *ResponseQuery) Clone() *ResponseQuery {
 		inters:          append([]Interceptor{}, rq.inters...),
 		predicates:      append([]predicate.Response{}, rq.predicates...),
 		withRequest:     rq.withRequest.Clone(),
+		withScenario:    rq.withScenario.Clone(),
 		withEvaluations: rq.withEvaluations.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
@@ -315,6 +340,17 @@ func (rq *ResponseQuery) WithRequest(opts ...func(*RequestQuery)) *ResponseQuery
 		opt(query)
 	}
 	rq.withRequest = query
+	return rq
+}
+
+// WithScenario tells the query-builder to eager-load the nodes that are connected to
+// the "scenario" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *ResponseQuery) WithScenario(opts ...func(*ScenarioQuery)) *ResponseQuery {
+	query := (&ScenarioClient{config: rq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rq.withScenario = query
 	return rq
 }
 
@@ -407,8 +443,9 @@ func (rq *ResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Res
 	var (
 		nodes       = []*Response{}
 		_spec       = rq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			rq.withRequest != nil,
+			rq.withScenario != nil,
 			rq.withEvaluations != nil,
 		}
 	)
@@ -433,6 +470,12 @@ func (rq *ResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Res
 	if query := rq.withRequest; query != nil {
 		if err := rq.loadRequest(ctx, query, nodes, nil,
 			func(n *Response, e *Request) { n.Edges.Request = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := rq.withScenario; query != nil {
+		if err := rq.loadScenario(ctx, query, nodes, nil,
+			func(n *Response, e *Scenario) { n.Edges.Scenario = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -468,6 +511,35 @@ func (rq *ResponseQuery) loadRequest(ctx context.Context, query *RequestQuery, n
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "requestId" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (rq *ResponseQuery) loadScenario(ctx context.Context, query *ScenarioQuery, nodes []*Response, init func(*Response), assign func(*Response, *Scenario)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Response)
+	for i := range nodes {
+		fk := nodes[i].ScenarioId
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(scenario.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "scenarioId" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -533,6 +605,9 @@ func (rq *ResponseQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if rq.withRequest != nil {
 			_spec.Node.AddColumnOnce(response.FieldRequestId)
+		}
+		if rq.withScenario != nil {
+			_spec.Node.AddColumnOnce(response.FieldScenarioId)
 		}
 	}
 	if ps := rq.predicates; len(ps) > 0 {

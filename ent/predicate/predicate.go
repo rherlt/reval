@@ -15,5 +15,8 @@ type Request func(*sql.Selector)
 // Response is the predicate function for response builders.
 type Response func(*sql.Selector)
 
+// Scenario is the predicate function for scenario builders.
+type Scenario func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

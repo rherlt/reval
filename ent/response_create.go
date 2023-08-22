@@ -16,6 +16,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 )
 
 // ResponseCreate is the builder for creating a Response entity.
@@ -43,6 +44,12 @@ func (rc *ResponseCreate) SetNillableExternalId(s *string) *ResponseCreate {
 // SetRequestId sets the "requestId" field.
 func (rc *ResponseCreate) SetRequestId(u uuid.UUID) *ResponseCreate {
 	rc.mutation.SetRequestId(u)
+	return rc
+}
+
+// SetScenarioId sets the "scenarioId" field.
+func (rc *ResponseCreate) SetScenarioId(u uuid.UUID) *ResponseCreate {
+	rc.mutation.SetScenarioId(u)
 	return rc
 }
 
@@ -119,6 +126,17 @@ func (rc *ResponseCreate) SetRequest(r *Request) *ResponseCreate {
 	return rc.SetRequestID(r.ID)
 }
 
+// SetScenarioID sets the "scenario" edge to the Scenario entity by ID.
+func (rc *ResponseCreate) SetScenarioID(id uuid.UUID) *ResponseCreate {
+	rc.mutation.SetScenarioID(id)
+	return rc
+}
+
+// SetScenario sets the "scenario" edge to the Scenario entity.
+func (rc *ResponseCreate) SetScenario(s *Scenario) *ResponseCreate {
+	return rc.SetScenarioID(s.ID)
+}
+
 // AddEvaluationIDs adds the "evaluations" edge to the Evaluation entity by IDs.
 func (rc *ResponseCreate) AddEvaluationIDs(ids ...uuid.UUID) *ResponseCreate {
 	rc.mutation.AddEvaluationIDs(ids...)
@@ -180,11 +198,17 @@ func (rc *ResponseCreate) check() error {
 	if _, ok := rc.mutation.RequestId(); !ok {
 		return &ValidationError{Name: "requestId", err: errors.New(`ent: missing required field "Response.requestId"`)}
 	}
+	if _, ok := rc.mutation.ScenarioId(); !ok {
+		return &ValidationError{Name: "scenarioId", err: errors.New(`ent: missing required field "Response.scenarioId"`)}
+	}
 	if _, ok := rc.mutation.Body(); !ok {
 		return &ValidationError{Name: "body", err: errors.New(`ent: missing required field "Response.body"`)}
 	}
 	if _, ok := rc.mutation.RequestID(); !ok {
 		return &ValidationError{Name: "request", err: errors.New(`ent: missing required edge "Response.request"`)}
+	}
+	if _, ok := rc.mutation.ScenarioID(); !ok {
+		return &ValidationError{Name: "scenario", err: errors.New(`ent: missing required edge "Response.scenario"`)}
 	}
 	return nil
 }
@@ -257,6 +281,23 @@ func (rc *ResponseCreate) createSpec() (*Response, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.RequestId = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.ScenarioIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   response.ScenarioTable,
+			Columns: []string{response.ScenarioColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scenario.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ScenarioId = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := rc.mutation.EvaluationsIDs(); len(nodes) > 0 {
@@ -354,6 +395,18 @@ func (u *ResponseUpsert) SetRequestId(v uuid.UUID) *ResponseUpsert {
 // UpdateRequestId sets the "requestId" field to the value that was provided on create.
 func (u *ResponseUpsert) UpdateRequestId() *ResponseUpsert {
 	u.SetExcluded(response.FieldRequestId)
+	return u
+}
+
+// SetScenarioId sets the "scenarioId" field.
+func (u *ResponseUpsert) SetScenarioId(v uuid.UUID) *ResponseUpsert {
+	u.Set(response.FieldScenarioId, v)
+	return u
+}
+
+// UpdateScenarioId sets the "scenarioId" field to the value that was provided on create.
+func (u *ResponseUpsert) UpdateScenarioId() *ResponseUpsert {
+	u.SetExcluded(response.FieldScenarioId)
 	return u
 }
 
@@ -503,6 +556,20 @@ func (u *ResponseUpsertOne) SetRequestId(v uuid.UUID) *ResponseUpsertOne {
 func (u *ResponseUpsertOne) UpdateRequestId() *ResponseUpsertOne {
 	return u.Update(func(s *ResponseUpsert) {
 		s.UpdateRequestId()
+	})
+}
+
+// SetScenarioId sets the "scenarioId" field.
+func (u *ResponseUpsertOne) SetScenarioId(v uuid.UUID) *ResponseUpsertOne {
+	return u.Update(func(s *ResponseUpsert) {
+		s.SetScenarioId(v)
+	})
+}
+
+// UpdateScenarioId sets the "scenarioId" field to the value that was provided on create.
+func (u *ResponseUpsertOne) UpdateScenarioId() *ResponseUpsertOne {
+	return u.Update(func(s *ResponseUpsert) {
+		s.UpdateScenarioId()
 	})
 }
 
@@ -826,6 +893,20 @@ func (u *ResponseUpsertBulk) SetRequestId(v uuid.UUID) *ResponseUpsertBulk {
 func (u *ResponseUpsertBulk) UpdateRequestId() *ResponseUpsertBulk {
 	return u.Update(func(s *ResponseUpsert) {
 		s.UpdateRequestId()
+	})
+}
+
+// SetScenarioId sets the "scenarioId" field.
+func (u *ResponseUpsertBulk) SetScenarioId(v uuid.UUID) *ResponseUpsertBulk {
+	return u.Update(func(s *ResponseUpsert) {
+		s.SetScenarioId(v)
+	})
+}
+
+// UpdateScenarioId sets the "scenarioId" field to the value that was provided on create.
+func (u *ResponseUpsertBulk) UpdateScenarioId() *ResponseUpsertBulk {
+	return u.Update(func(s *ResponseUpsert) {
+		s.UpdateScenarioId()
 	})
 }
 

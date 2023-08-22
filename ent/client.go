@@ -18,6 +18,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 	"github.com/rherlt/reval/ent/user"
 )
 
@@ -32,6 +33,8 @@ type Client struct {
 	Request *RequestClient
 	// Response is the client for interacting with the Response builders.
 	Response *ResponseClient
+	// Scenario is the client for interacting with the Scenario builders.
+	Scenario *ScenarioClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -50,6 +53,7 @@ func (c *Client) init() {
 	c.Evaluation = NewEvaluationClient(c.config)
 	c.Request = NewRequestClient(c.config)
 	c.Response = NewResponseClient(c.config)
+	c.Scenario = NewScenarioClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -136,6 +140,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Evaluation: NewEvaluationClient(cfg),
 		Request:    NewRequestClient(cfg),
 		Response:   NewResponseClient(cfg),
+		Scenario:   NewScenarioClient(cfg),
 		User:       NewUserClient(cfg),
 	}, nil
 }
@@ -159,6 +164,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Evaluation: NewEvaluationClient(cfg),
 		Request:    NewRequestClient(cfg),
 		Response:   NewResponseClient(cfg),
+		Scenario:   NewScenarioClient(cfg),
 		User:       NewUserClient(cfg),
 	}, nil
 }
@@ -191,6 +197,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Evaluation.Use(hooks...)
 	c.Request.Use(hooks...)
 	c.Response.Use(hooks...)
+	c.Scenario.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -200,6 +207,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Evaluation.Intercept(interceptors...)
 	c.Request.Intercept(interceptors...)
 	c.Response.Intercept(interceptors...)
+	c.Scenario.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -212,6 +220,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Request.mutate(ctx, m)
 	case *ResponseMutation:
 		return c.Response.mutate(ctx, m)
+	case *ScenarioMutation:
+		return c.Scenario.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -612,6 +622,22 @@ func (c *ResponseClient) QueryRequest(r *Response) *RequestQuery {
 	return query
 }
 
+// QueryScenario queries the scenario edge of a Response.
+func (c *ResponseClient) QueryScenario(r *Response) *ScenarioQuery {
+	query := (&ScenarioClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(response.Table, response.FieldID, id),
+			sqlgraph.To(scenario.Table, scenario.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, response.ScenarioTable, response.ScenarioColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryEvaluations queries the evaluations edge of a Response.
 func (c *ResponseClient) QueryEvaluations(r *Response) *EvaluationQuery {
 	query := (&EvaluationClient{config: c.config}).Query()
@@ -650,6 +676,140 @@ func (c *ResponseClient) mutate(ctx context.Context, m *ResponseMutation) (Value
 		return (&ResponseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Response mutation op: %q", m.Op())
+	}
+}
+
+// ScenarioClient is a client for the Scenario schema.
+type ScenarioClient struct {
+	config
+}
+
+// NewScenarioClient returns a client for the Scenario from the given config.
+func NewScenarioClient(c config) *ScenarioClient {
+	return &ScenarioClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `scenario.Hooks(f(g(h())))`.
+func (c *ScenarioClient) Use(hooks ...Hook) {
+	c.hooks.Scenario = append(c.hooks.Scenario, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `scenario.Intercept(f(g(h())))`.
+func (c *ScenarioClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Scenario = append(c.inters.Scenario, interceptors...)
+}
+
+// Create returns a builder for creating a Scenario entity.
+func (c *ScenarioClient) Create() *ScenarioCreate {
+	mutation := newScenarioMutation(c.config, OpCreate)
+	return &ScenarioCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Scenario entities.
+func (c *ScenarioClient) CreateBulk(builders ...*ScenarioCreate) *ScenarioCreateBulk {
+	return &ScenarioCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Scenario.
+func (c *ScenarioClient) Update() *ScenarioUpdate {
+	mutation := newScenarioMutation(c.config, OpUpdate)
+	return &ScenarioUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ScenarioClient) UpdateOne(s *Scenario) *ScenarioUpdateOne {
+	mutation := newScenarioMutation(c.config, OpUpdateOne, withScenario(s))
+	return &ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ScenarioClient) UpdateOneID(id uuid.UUID) *ScenarioUpdateOne {
+	mutation := newScenarioMutation(c.config, OpUpdateOne, withScenarioID(id))
+	return &ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Scenario.
+func (c *ScenarioClient) Delete() *ScenarioDelete {
+	mutation := newScenarioMutation(c.config, OpDelete)
+	return &ScenarioDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ScenarioClient) DeleteOne(s *Scenario) *ScenarioDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ScenarioClient) DeleteOneID(id uuid.UUID) *ScenarioDeleteOne {
+	builder := c.Delete().Where(scenario.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ScenarioDeleteOne{builder}
+}
+
+// Query returns a query builder for Scenario.
+func (c *ScenarioClient) Query() *ScenarioQuery {
+	return &ScenarioQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeScenario},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Scenario entity by its id.
+func (c *ScenarioClient) Get(ctx context.Context, id uuid.UUID) (*Scenario, error) {
+	return c.Query().Where(scenario.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ScenarioClient) GetX(ctx context.Context, id uuid.UUID) *Scenario {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryResponses queries the responses edge of a Scenario.
+func (c *ScenarioClient) QueryResponses(s *Scenario) *ResponseQuery {
+	query := (&ResponseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scenario.Table, scenario.FieldID, id),
+			sqlgraph.To(response.Table, response.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, scenario.ResponsesTable, scenario.ResponsesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ScenarioClient) Hooks() []Hook {
+	return c.hooks.Scenario
+}
+
+// Interceptors returns the client interceptors.
+func (c *ScenarioClient) Interceptors() []Interceptor {
+	return c.inters.Scenario
+}
+
+func (c *ScenarioClient) mutate(ctx context.Context, m *ScenarioMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ScenarioCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ScenarioUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ScenarioDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Scenario mutation op: %q", m.Op())
 	}
 }
 
@@ -790,9 +950,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Evaluation, Request, Response, User []ent.Hook
+		Evaluation, Request, Response, Scenario, User []ent.Hook
 	}
 	inters struct {
-		Evaluation, Request, Response, User []ent.Interceptor
+		Evaluation, Request, Response, Scenario, User []ent.Interceptor
 	}
 )

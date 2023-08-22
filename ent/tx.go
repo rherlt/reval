@@ -18,6 +18,8 @@ type Tx struct {
 	Request *RequestClient
 	// Response is the client for interacting with the Response builders.
 	Response *ResponseClient
+	// Scenario is the client for interacting with the Scenario builders.
+	Scenario *ScenarioClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -154,6 +156,7 @@ func (tx *Tx) init() {
 	tx.Evaluation = NewEvaluationClient(tx.config)
 	tx.Request = NewRequestClient(tx.config)
 	tx.Response = NewResponseClient(tx.config)
+	tx.Scenario = NewScenarioClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

@@ -19,6 +19,7 @@ func (Response) Fields() []ent.Field {
 			Default(uuid.New),
 		field.String("externalId").Optional(),
 		field.UUID("requestId", uuid.UUID{}),
+		field.UUID("scenarioId", uuid.UUID{}),
 		field.String("from").Optional(),
 		field.String("subject").Optional(),
 		field.String("body"),
@@ -34,7 +35,12 @@ func (Response) Edges() []ent.Edge {
 			Unique().
 			Required().
 			Field("requestId"),
-		//.Annotations(entsql.OnDelete(entsql.Restrict)),
+
+		edge.From("scenario", Scenario.Type).
+			Ref("responses").
+			Unique().
+			Required().
+			Field("scenarioId"),
 
 		edge.To("evaluations", Evaluation.Type),
 	}

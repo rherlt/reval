@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 )
 
 // Response is the model entity for the Response schema.
@@ -23,6 +24,8 @@ type Response struct {
 	ExternalId string `json:"externalId,omitempty"`
 	// RequestId holds the value of the "requestId" field.
 	RequestId uuid.UUID `json:"requestId,omitempty"`
+	// ScenarioId holds the value of the "scenarioId" field.
+	ScenarioId uuid.UUID `json:"scenarioId,omitempty"`
 	// From holds the value of the "from" field.
 	From string `json:"from,omitempty"`
 	// Subject holds the value of the "subject" field.
@@ -41,11 +44,13 @@ type Response struct {
 type ResponseEdges struct {
 	// Request holds the value of the request edge.
 	Request *Request `json:"request,omitempty"`
+	// Scenario holds the value of the scenario edge.
+	Scenario *Scenario `json:"scenario,omitempty"`
 	// Evaluations holds the value of the evaluations edge.
 	Evaluations []*Evaluation `json:"evaluations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // RequestOrErr returns the Request value or an error if the edge
@@ -61,10 +66,23 @@ func (e ResponseEdges) RequestOrErr() (*Request, error) {
 	return nil, &NotLoadedError{edge: "request"}
 }
 
+// ScenarioOrErr returns the Scenario value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ResponseEdges) ScenarioOrErr() (*Scenario, error) {
+	if e.loadedTypes[1] {
+		if e.Scenario == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: scenario.Label}
+		}
+		return e.Scenario, nil
+	}
+	return nil, &NotLoadedError{edge: "scenario"}
+}
+
 // EvaluationsOrErr returns the Evaluations value or an error if the edge
 // was not loaded in eager-loading.
 func (e ResponseEdges) EvaluationsOrErr() ([]*Evaluation, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.Evaluations, nil
 	}
 	return nil, &NotLoadedError{edge: "evaluations"}
@@ -79,7 +97,7 @@ func (*Response) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case response.FieldDate:
 			values[i] = new(sql.NullTime)
-		case response.FieldID, response.FieldRequestId:
+		case response.FieldID, response.FieldRequestId, response.FieldScenarioId:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -113,6 +131,12 @@ func (r *Response) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field requestId", values[i])
 			} else if value != nil {
 				r.RequestId = *value
+			}
+		case response.FieldScenarioId:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field scenarioId", values[i])
+			} else if value != nil {
+				r.ScenarioId = *value
 			}
 		case response.FieldFrom:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -156,6 +180,11 @@ func (r *Response) QueryRequest() *RequestQuery {
 	return NewResponseClient(r.config).QueryRequest(r)
 }
 
+// QueryScenario queries the "scenario" edge of the Response entity.
+func (r *Response) QueryScenario() *ScenarioQuery {
+	return NewResponseClient(r.config).QueryScenario(r)
+}
+
 // QueryEvaluations queries the "evaluations" edge of the Response entity.
 func (r *Response) QueryEvaluations() *EvaluationQuery {
 	return NewResponseClient(r.config).QueryEvaluations(r)
@@ -189,6 +218,9 @@ func (r *Response) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("requestId=")
 	builder.WriteString(fmt.Sprintf("%v", r.RequestId))
+	builder.WriteString(", ")
+	builder.WriteString("scenarioId=")
+	builder.WriteString(fmt.Sprintf("%v", r.ScenarioId))
 	builder.WriteString(", ")
 	builder.WriteString("from=")
 	builder.WriteString(r.From)

@@ -236,6 +236,16 @@ func DateLTE(v time.Time) predicate.Evaluation {
 	return predicate.Evaluation(sql.FieldLTE(FieldDate, v))
 }
 
+// DateIsNil applies the IsNil predicate on the "date" field.
+func DateIsNil() predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldIsNull(FieldDate))
+}
+
+// DateNotNil applies the NotNil predicate on the "date" field.
+func DateNotNil() predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldNotNull(FieldDate))
+}
+
 // EvaluationResultEQ applies the EQ predicate on the "evaluationResult" field.
 func EvaluationResultEQ(v string) predicate.Evaluation {
 	return predicate.Evaluation(sql.FieldEQ(FieldEvaluationResult, v))
