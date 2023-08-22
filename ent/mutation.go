@@ -2419,8 +2419,8 @@ type ScenarioMutation struct {
 	op               Op
 	typ              string
 	id               *uuid.UUID
-	externalId       *string
 	name             *string
+	externalId       *string
 	desctiption      *string
 	date             *time.Time
 	clearedFields    map[string]struct{}
@@ -2536,6 +2536,42 @@ func (m *ScenarioMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
+// SetName sets the "name" field.
+func (m *ScenarioMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *ScenarioMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Scenario entity.
+// If the Scenario object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ScenarioMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *ScenarioMutation) ResetName() {
+	m.name = nil
+}
+
 // SetExternalId sets the "externalId" field.
 func (m *ScenarioMutation) SetExternalId(s string) {
 	m.externalId = &s
@@ -2583,55 +2619,6 @@ func (m *ScenarioMutation) ExternalIdCleared() bool {
 func (m *ScenarioMutation) ResetExternalId() {
 	m.externalId = nil
 	delete(m.clearedFields, scenario.FieldExternalId)
-}
-
-// SetName sets the "name" field.
-func (m *ScenarioMutation) SetName(s string) {
-	m.name = &s
-}
-
-// Name returns the value of the "name" field in the mutation.
-func (m *ScenarioMutation) Name() (r string, exists bool) {
-	v := m.name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldName returns the old "name" field's value of the Scenario entity.
-// If the Scenario object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScenarioMutation) OldName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldName: %w", err)
-	}
-	return oldValue.Name, nil
-}
-
-// ClearName clears the value of the "name" field.
-func (m *ScenarioMutation) ClearName() {
-	m.name = nil
-	m.clearedFields[scenario.FieldName] = struct{}{}
-}
-
-// NameCleared returns if the "name" field was cleared in this mutation.
-func (m *ScenarioMutation) NameCleared() bool {
-	_, ok := m.clearedFields[scenario.FieldName]
-	return ok
-}
-
-// ResetName resets all changes to the "name" field.
-func (m *ScenarioMutation) ResetName() {
-	m.name = nil
-	delete(m.clearedFields, scenario.FieldName)
 }
 
 // SetDesctiption sets the "desctiption" field.
@@ -2821,11 +2808,11 @@ func (m *ScenarioMutation) Type() string {
 // AddedFields().
 func (m *ScenarioMutation) Fields() []string {
 	fields := make([]string, 0, 4)
-	if m.externalId != nil {
-		fields = append(fields, scenario.FieldExternalId)
-	}
 	if m.name != nil {
 		fields = append(fields, scenario.FieldName)
+	}
+	if m.externalId != nil {
+		fields = append(fields, scenario.FieldExternalId)
 	}
 	if m.desctiption != nil {
 		fields = append(fields, scenario.FieldDesctiption)
@@ -2841,10 +2828,10 @@ func (m *ScenarioMutation) Fields() []string {
 // schema.
 func (m *ScenarioMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case scenario.FieldExternalId:
-		return m.ExternalId()
 	case scenario.FieldName:
 		return m.Name()
+	case scenario.FieldExternalId:
+		return m.ExternalId()
 	case scenario.FieldDesctiption:
 		return m.Desctiption()
 	case scenario.FieldDate:
@@ -2858,10 +2845,10 @@ func (m *ScenarioMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ScenarioMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case scenario.FieldExternalId:
-		return m.OldExternalId(ctx)
 	case scenario.FieldName:
 		return m.OldName(ctx)
+	case scenario.FieldExternalId:
+		return m.OldExternalId(ctx)
 	case scenario.FieldDesctiption:
 		return m.OldDesctiption(ctx)
 	case scenario.FieldDate:
@@ -2875,19 +2862,19 @@ func (m *ScenarioMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *ScenarioMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case scenario.FieldExternalId:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExternalId(v)
-		return nil
 	case scenario.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case scenario.FieldExternalId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExternalId(v)
 		return nil
 	case scenario.FieldDesctiption:
 		v, ok := value.(string)
@@ -2936,9 +2923,6 @@ func (m *ScenarioMutation) ClearedFields() []string {
 	if m.FieldCleared(scenario.FieldExternalId) {
 		fields = append(fields, scenario.FieldExternalId)
 	}
-	if m.FieldCleared(scenario.FieldName) {
-		fields = append(fields, scenario.FieldName)
-	}
 	if m.FieldCleared(scenario.FieldDesctiption) {
 		fields = append(fields, scenario.FieldDesctiption)
 	}
@@ -2962,9 +2946,6 @@ func (m *ScenarioMutation) ClearField(name string) error {
 	case scenario.FieldExternalId:
 		m.ClearExternalId()
 		return nil
-	case scenario.FieldName:
-		m.ClearName()
-		return nil
 	case scenario.FieldDesctiption:
 		m.ClearDesctiption()
 		return nil
@@ -2979,11 +2960,11 @@ func (m *ScenarioMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ScenarioMutation) ResetField(name string) error {
 	switch name {
-	case scenario.FieldExternalId:
-		m.ResetExternalId()
-		return nil
 	case scenario.FieldName:
 		m.ResetName()
+		return nil
+	case scenario.FieldExternalId:
+		m.ResetExternalId()
 		return nil
 	case scenario.FieldDesctiption:
 		m.ResetDesctiption()

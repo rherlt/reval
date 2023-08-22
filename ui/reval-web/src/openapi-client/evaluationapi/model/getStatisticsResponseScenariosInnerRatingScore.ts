@@ -11,21 +11,18 @@
  */
 
 
-/**
- * Evaluation statistics.
- */
-export interface Evaluations { 
+export interface GetStatisticsResponseScenariosInnerRatingScore { 
     /**
-     * number of neutral evaluations.
+     * Minimum of rating Score.
      */
-    numNeutral: number;
+    min?: number;
     /**
-     * Number of positive evaluations.
+     * Rating score of the scenario.
      */
-    numPositive: number;
+    value?: number;
     /**
-     * number of negative evaluations.
+     * Maximum of rating Score.
      */
-    numNegative: number;
+    max?: number;
 }
 

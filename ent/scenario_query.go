@@ -299,12 +299,12 @@ func (sq *ScenarioQuery) WithResponses(opts ...func(*ResponseQuery)) *ScenarioQu
 // Example:
 //
 //	var v []struct {
-//		ExternalId string `json:"externalId,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Scenario.Query().
-//		GroupBy(scenario.FieldExternalId).
+//		GroupBy(scenario.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (sq *ScenarioQuery) GroupBy(field string, fields ...string) *ScenarioGroupBy {
@@ -322,11 +322,11 @@ func (sq *ScenarioQuery) GroupBy(field string, fields ...string) *ScenarioGroupB
 // Example:
 //
 //	var v []struct {
-//		ExternalId string `json:"externalId,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.Scenario.Query().
-//		Select(scenario.FieldExternalId).
+//		Select(scenario.FieldName).
 //		Scan(ctx, &v)
 func (sq *ScenarioQuery) Select(fields ...string) *ScenarioSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)

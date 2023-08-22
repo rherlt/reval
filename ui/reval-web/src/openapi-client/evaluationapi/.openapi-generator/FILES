@@ -3,6 +3,7 @@ README.md
 api.module.ts
 api/api.ts
 api/responseEvaluation.service.ts
+api/statistics.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -10,8 +11,12 @@ index.ts
 model/errorInformation.ts
 model/evaluations.ts
 model/getEvaluationResponse.ts
+model/getStatisticsResponse.ts
 model/message.ts
 model/models.ts
+model/nameValuePair.ts
 model/postEvaluationRequest.ts
+model/ratingScore.ts
+model/scenarioStatistics.ts
 param.ts
 variables.ts

@@ -86,8 +86,8 @@ var (
 	// ScenariosColumns holds the columns for the "scenarios" table.
 	ScenariosColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
 		{Name: "external_id", Type: field.TypeString, Nullable: true},
-		{Name: "name", Type: field.TypeString, Nullable: true},
 		{Name: "desctiption", Type: field.TypeString, Nullable: true},
 		{Name: "date", Type: field.TypeTime, Nullable: true},
 	}

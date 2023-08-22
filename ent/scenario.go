@@ -18,10 +18,10 @@ type Scenario struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// ExternalId holds the value of the "externalId" field.
-	ExternalId string `json:"externalId,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// ExternalId holds the value of the "externalId" field.
+	ExternalId string `json:"externalId,omitempty"`
 	// Desctiption holds the value of the "desctiption" field.
 	Desctiption string `json:"desctiption,omitempty"`
 	// Date holds the value of the "date" field.
@@ -55,7 +55,7 @@ func (*Scenario) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case scenario.FieldExternalId, scenario.FieldName, scenario.FieldDesctiption:
+		case scenario.FieldName, scenario.FieldExternalId, scenario.FieldDesctiption:
 			values[i] = new(sql.NullString)
 		case scenario.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -82,17 +82,17 @@ func (s *Scenario) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				s.ID = *value
 			}
-		case scenario.FieldExternalId:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field externalId", values[i])
-			} else if value.Valid {
-				s.ExternalId = value.String
-			}
 		case scenario.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				s.Name = value.String
+			}
+		case scenario.FieldExternalId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field externalId", values[i])
+			} else if value.Valid {
+				s.ExternalId = value.String
 			}
 		case scenario.FieldDesctiption:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -147,11 +147,11 @@ func (s *Scenario) String() string {
 	var builder strings.Builder
 	builder.WriteString("Scenario(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
-	builder.WriteString("externalId=")
-	builder.WriteString(s.ExternalId)
-	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
+	builder.WriteString(", ")
+	builder.WriteString("externalId=")
+	builder.WriteString(s.ExternalId)
 	builder.WriteString(", ")
 	builder.WriteString("desctiption=")
 	builder.WriteString(s.Desctiption)

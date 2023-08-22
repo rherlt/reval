@@ -11,21 +11,14 @@
  */
 
 
-/**
- * Evaluation statistics.
- */
-export interface Evaluations { 
+export interface GetStatisticsResponseScenariosInnerResultStatisticsInner { 
     /**
-     * number of neutral evaluations.
+     * Name of the category.
      */
-    numNeutral: number;
+    name?: string;
     /**
-     * Number of positive evaluations.
+     * Amout of rated question/response pairs in this category.
      */
-    numPositive: number;
-    /**
-     * number of negative evaluations.
-     */
-    numNegative: number;
+    value?: number;
 }
 

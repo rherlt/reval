@@ -17,8 +17,8 @@ func (Scenario) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New),
+		field.String("name"),
 		field.String("externalId").Optional(),
-		field.String("name").Optional(),
 		field.String("desctiption").Optional(),
 		field.Time("date").Optional(),
 	}

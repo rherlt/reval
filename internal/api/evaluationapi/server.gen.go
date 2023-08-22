@@ -54,14 +54,19 @@ type GetEvaluationResponse struct {
 	// Id Unique id of the evaluation.
 	Id string `json:"id"`
 
-	// Request The message Message.
+	// Request Message.
 	Request Message `json:"request"`
 
-	// Response The message Message.
+	// Response Message.
 	Response Message `json:"response"`
 }
 
-// Message The message Message.
+// GetStatisticsResponse The statistics of the evaluations grouped by scenario
+type GetStatisticsResponse struct {
+	Scenarios *[]ScenarioStatistics `json:"scenarios,omitempty"`
+}
+
+// Message Message.
 type Message struct {
 	// Body e.g. E-Mail body. The actual message.
 	Body string `json:"body"`
@@ -76,16 +81,55 @@ type Message struct {
 	Subject string `json:"subject"`
 }
 
+// NameValuePair The statistics of the evaluations
+type NameValuePair struct {
+	// Name Name of the category.
+	Name string `json:"name"`
+
+	// Value Amout of rated question/response pairs in this category.
+	Value int32 `json:"value"`
+}
+
 // PostEvaluationRequest The result of the current evaluation.
 type PostEvaluationRequest struct {
 	EvaluationResult PostEvaluationRequestEvaluationResult `json:"evaluationResult"`
 
-	// Id Unique id of the message evaluation.
+	// Id Unique id of the evaluation.
 	Id string `json:"id"`
 }
 
 // PostEvaluationRequestEvaluationResult defines model for PostEvaluationRequest.EvaluationResult.
 type PostEvaluationRequestEvaluationResult string
+
+// RatingScore defines model for RatingScore.
+type RatingScore struct {
+	// Max Maximum of rating Score.
+	Max float32 `json:"max"`
+
+	// Min Minimum of rating Score.
+	Min float32 `json:"min"`
+
+	// Value Rating score of the scenario.
+	Value float32 `json:"value"`
+}
+
+// ScenarioStatistics Statistics per Scenario.
+type ScenarioStatistics struct {
+	// Description The description of the Scenario.
+	Description *string `json:"description,omitempty"`
+
+	// Id Unique id of the evaluation.
+	Id string `json:"id"`
+
+	// Name The name of the Scenario
+	Name               string          `json:"name"`
+	ProgressStatistics []NameValuePair `json:"progressStatistics"`
+	RatingScore        RatingScore     `json:"ratingScore"`
+	ResultStatistics   []NameValuePair `json:"resultStatistics"`
+
+	// TotalResponseCount The amount of questions and response evaluated in this scenario.
+	TotalResponseCount int32 `json:"totalResponseCount"`
+}
 
 // Authorization Bearer Token.
 type Authorization = string
@@ -102,6 +146,12 @@ type PostEvaluationParams struct {
 	Authorization *Authorization `json:"Authorization,omitempty"`
 }
 
+// GetStatisticsParams defines parameters for GetStatistics.
+type GetStatisticsParams struct {
+	// Authorization JWT token with authorization information.
+	Authorization *Authorization `json:"Authorization,omitempty"`
+}
+
 // PostEvaluationJSONRequestBody defines body for PostEvaluation for application/json ContentType.
 type PostEvaluationJSONRequestBody = PostEvaluationRequest
 
@@ -113,6 +163,9 @@ type ServerInterface interface {
 	// Posts the evaluation of the current evaluation response.
 	// (POST /evaluation)
 	PostEvaluation(c *gin.Context, params PostEvaluationParams)
+	// Gets the statistics.
+	// (GET /statistics)
+	GetStatistics(c *gin.Context, params GetStatisticsParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -202,6 +255,45 @@ func (siw *ServerInterfaceWrapper) PostEvaluation(c *gin.Context) {
 	siw.Handler.PostEvaluation(c, params)
 }
 
+// GetStatistics operation middleware
+func (siw *ServerInterfaceWrapper) GetStatistics(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetStatisticsParams
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "Authorization" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Authorization")]; found {
+		var Authorization Authorization
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for Authorization, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "Authorization", runtime.ParamLocationHeader, valueList[0], &Authorization)
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter Authorization: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.Authorization = &Authorization
+
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetStatistics(c, params)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -231,35 +323,45 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/evaluation", wrapper.GetEvaluation)
 	router.POST(options.BaseURL+"/evaluation", wrapper.PostEvaluation)
+	router.GET(options.BaseURL+"/statistics", wrapper.GetStatistics)
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"AAD//0qyVwOaGgAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

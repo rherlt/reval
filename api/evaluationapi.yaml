@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: '0.1'
+  version: '0.2'
 servers:
   - url: '{protocol}://{environment}:{port}/api/'
     variables:
@@ -34,6 +34,8 @@ servers:
 tags:
   - name: Response Evaluation
     description: API for evaluating message responses.
+  - name: Statistics
+    description: API for evaluation statistics.
 paths:
   /evaluation:
     get:
@@ -79,6 +81,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorInformation'
+  /statistics:
+    get:
+      tags:
+        - Statistics
+      summary: Gets the statistics.
+      description: Gets the statistics
+      operationId: GetStatistics
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          description: Gets a scenario response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStatisticsResponse'
+        '404':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInformation'
 components:
   parameters:
     Authorization:
@@ -113,8 +137,8 @@ components:
       properties:
         id:
           type: string
-          description: Unique id of the message evaluation.
-          example: 1234
+          description: Unique id of the evaluation.
+          example: 'fb336629-f0e5-4ce8-be96-3cf8de031b03'
         evaluationResult:
           type: string
           default: neutral
@@ -131,7 +155,7 @@ components:
         id:
           type: string
           description: Unique id of the evaluation.
-          example: 1234
+          example: 'fb336629-f0e5-4ce8-be96-3cf8de031b03'
         response:
           $ref: '#/components/schemas/Message'
         request:
@@ -144,7 +168,7 @@ components:
         - request
         - evaluations
     Message:
-      description: The message Message.
+      description: Message.
       properties:
         from:
           type: string
@@ -186,4 +210,80 @@ components:
         - numNeutral
         - numPositive
         - numNegative
-
+    ScenarioStatistics:
+      description: Statistics per Scenario.
+      properties:
+        id:
+          type: string
+          description: Unique id of the evaluation.
+          example: 'fb336629-f0e5-4ce8-be96-3cf8de031b03'
+        name: 
+          type: string
+          description: The name of the Scenario
+          example: 'Szenario 1'
+        description:
+          type: string
+          description: The description of the Scenario.
+          example: 'Das ist das erste tolle Szenario mit den Antworten aus Llama-2-13b-chat-hf_responses_rated_by_gpt-3.5-turbo.json'
+        totalResponseCount:
+          type: integer
+          format: int32
+          description: The amount of questions and response evaluated in this scenario.
+          example: 400
+        progressStatistics:
+          type: array
+          items:
+            $ref: '#/components/schemas/NameValuePair'
+        resultStatistics:
+          type: array
+          items:
+            $ref: '#/components/schemas/NameValuePair'
+        ratingScore:
+          $ref: '#/components/schemas/RatingScore'
+      required:
+        - id
+        - name
+        - totalResponseCount
+        - progressStatistics
+        - resultStatistics
+        - ratingScore
+    GetStatisticsResponse:
+      description: The statistics of the evaluations grouped by scenario
+      properties:
+        scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScenarioStatistics'
+    NameValuePair:
+      description: The statistics of the evaluations
+      properties:
+        name:
+          type: string
+          description: Name of the category.
+          example: 'positive'
+        value:
+          type: integer
+          format: int32
+          description: Amout of rated question/response pairs in this category.
+          example: 12
+      required:
+        - name
+        - value
+    RatingScore:
+      properties:
+        min:
+          type: number
+          description: Minimum of rating Score.
+          example: -1
+        value:
+          type: number
+          description: Rating score of the scenario.
+          example: 0.8
+        max:
+          type: number
+          description: Maximum of rating Score.
+          example: 1
+      required:
+      - min
+      - value
+      - max

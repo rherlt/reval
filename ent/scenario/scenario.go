@@ -13,10 +13,10 @@ const (
 	Label = "scenario"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldExternalId holds the string denoting the externalid field in the database.
-	FieldExternalId = "external_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldExternalId holds the string denoting the externalid field in the database.
+	FieldExternalId = "external_id"
 	// FieldDesctiption holds the string denoting the desctiption field in the database.
 	FieldDesctiption = "desctiption"
 	// FieldDate holds the string denoting the date field in the database.
@@ -37,8 +37,8 @@ const (
 // Columns holds all SQL columns for scenario fields.
 var Columns = []string{
 	FieldID,
-	FieldExternalId,
 	FieldName,
+	FieldExternalId,
 	FieldDesctiption,
 	FieldDate,
 }
@@ -66,14 +66,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByExternalId orders the results by the externalId field.
-func ByExternalId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExternalId, opts...).ToFunc()
-}
-
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByExternalId orders the results by the externalId field.
+func ByExternalId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExternalId, opts...).ToFunc()
 }
 
 // ByDesctiption orders the results by the desctiption field.

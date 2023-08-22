@@ -9,23 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ScenarioStatistics } from './scenarioStatistics';
 
 
 /**
- * Evaluation statistics.
+ * The statistics of the evaluations grouped by scenario
  */
-export interface Evaluations { 
-    /**
-     * number of neutral evaluations.
-     */
-    numNeutral: number;
-    /**
-     * Number of positive evaluations.
-     */
-    numPositive: number;
-    /**
-     * number of negative evaluations.
-     */
-    numNegative: number;
+export interface GetStatisticsResponse { 
+    scenarios?: Array<ScenarioStatistics>;
 }
 
