@@ -8,6 +8,7 @@ import (
 	"github.com/rherlt/reval/internal/config"
 	"github.com/rherlt/reval/internal/controller"
 	"github.com/rherlt/reval/internal/data"
+	"github.com/rherlt/reval/internal/oidc"
 	"github.com/rherlt/reval/internal/persistence"
 
 	"github.com/gin-contrib/cors"
@@ -34,6 +35,7 @@ func main() {
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, config.Current.Gin_Cors_AdditionalAllowedHeaders...)
 	corsConfig.AllowAllOrigins = config.Current.Gin_Cors_AllowAllOrigins
 	r.Use(cors.New(corsConfig))
+	r.Use(oidc.OidcAuthMiddleware(config.Current.Oidc_Authority, config.Current.Oidc_Audience))
 
 	//register HTTP handlers for evaluatio api
 	si := new(controller.EvaluationApiServerInterface)

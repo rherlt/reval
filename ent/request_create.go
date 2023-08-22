@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -20,6 +22,7 @@ type RequestCreate struct {
 	config
 	mutation *RequestMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetExternalId sets the "externalId" field.
@@ -190,6 +193,7 @@ func (rc *RequestCreate) createSpec() (*Request, *sqlgraph.CreateSpec) {
 		_node = &Request{config: rc.config}
 		_spec = sqlgraph.NewCreateSpec(request.Table, sqlgraph.NewFieldSpec(request.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = rc.conflict
 	if id, ok := rc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -233,10 +237,328 @@ func (rc *RequestCreate) createSpec() (*Request, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Request.Create().
+//		SetExternalId(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RequestUpsert) {
+//			SetExternalId(v+v).
+//		}).
+//		Exec(ctx)
+func (rc *RequestCreate) OnConflict(opts ...sql.ConflictOption) *RequestUpsertOne {
+	rc.conflict = opts
+	return &RequestUpsertOne{
+		create: rc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (rc *RequestCreate) OnConflictColumns(columns ...string) *RequestUpsertOne {
+	rc.conflict = append(rc.conflict, sql.ConflictColumns(columns...))
+	return &RequestUpsertOne{
+		create: rc,
+	}
+}
+
+type (
+	// RequestUpsertOne is the builder for "upsert"-ing
+	//  one Request node.
+	RequestUpsertOne struct {
+		create *RequestCreate
+	}
+
+	// RequestUpsert is the "OnConflict" setter.
+	RequestUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetExternalId sets the "externalId" field.
+func (u *RequestUpsert) SetExternalId(v string) *RequestUpsert {
+	u.Set(request.FieldExternalId, v)
+	return u
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *RequestUpsert) UpdateExternalId() *RequestUpsert {
+	u.SetExcluded(request.FieldExternalId)
+	return u
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *RequestUpsert) ClearExternalId() *RequestUpsert {
+	u.SetNull(request.FieldExternalId)
+	return u
+}
+
+// SetFrom sets the "from" field.
+func (u *RequestUpsert) SetFrom(v string) *RequestUpsert {
+	u.Set(request.FieldFrom, v)
+	return u
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *RequestUpsert) UpdateFrom() *RequestUpsert {
+	u.SetExcluded(request.FieldFrom)
+	return u
+}
+
+// ClearFrom clears the value of the "from" field.
+func (u *RequestUpsert) ClearFrom() *RequestUpsert {
+	u.SetNull(request.FieldFrom)
+	return u
+}
+
+// SetSubject sets the "subject" field.
+func (u *RequestUpsert) SetSubject(v string) *RequestUpsert {
+	u.Set(request.FieldSubject, v)
+	return u
+}
+
+// UpdateSubject sets the "subject" field to the value that was provided on create.
+func (u *RequestUpsert) UpdateSubject() *RequestUpsert {
+	u.SetExcluded(request.FieldSubject)
+	return u
+}
+
+// ClearSubject clears the value of the "subject" field.
+func (u *RequestUpsert) ClearSubject() *RequestUpsert {
+	u.SetNull(request.FieldSubject)
+	return u
+}
+
+// SetBody sets the "body" field.
+func (u *RequestUpsert) SetBody(v string) *RequestUpsert {
+	u.Set(request.FieldBody, v)
+	return u
+}
+
+// UpdateBody sets the "body" field to the value that was provided on create.
+func (u *RequestUpsert) UpdateBody() *RequestUpsert {
+	u.SetExcluded(request.FieldBody)
+	return u
+}
+
+// SetDate sets the "date" field.
+func (u *RequestUpsert) SetDate(v time.Time) *RequestUpsert {
+	u.Set(request.FieldDate, v)
+	return u
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *RequestUpsert) UpdateDate() *RequestUpsert {
+	u.SetExcluded(request.FieldDate)
+	return u
+}
+
+// ClearDate clears the value of the "date" field.
+func (u *RequestUpsert) ClearDate() *RequestUpsert {
+	u.SetNull(request.FieldDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(request.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RequestUpsertOne) UpdateNewValues() *RequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(request.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *RequestUpsertOne) Ignore() *RequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RequestUpsertOne) DoNothing() *RequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RequestCreate.OnConflict
+// documentation for more info.
+func (u *RequestUpsertOne) Update(set func(*RequestUpsert)) *RequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetExternalId sets the "externalId" field.
+func (u *RequestUpsertOne) SetExternalId(v string) *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetExternalId(v)
+	})
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *RequestUpsertOne) UpdateExternalId() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateExternalId()
+	})
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *RequestUpsertOne) ClearExternalId() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearExternalId()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *RequestUpsertOne) SetFrom(v string) *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *RequestUpsertOne) UpdateFrom() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// ClearFrom clears the value of the "from" field.
+func (u *RequestUpsertOne) ClearFrom() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearFrom()
+	})
+}
+
+// SetSubject sets the "subject" field.
+func (u *RequestUpsertOne) SetSubject(v string) *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetSubject(v)
+	})
+}
+
+// UpdateSubject sets the "subject" field to the value that was provided on create.
+func (u *RequestUpsertOne) UpdateSubject() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateSubject()
+	})
+}
+
+// ClearSubject clears the value of the "subject" field.
+func (u *RequestUpsertOne) ClearSubject() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearSubject()
+	})
+}
+
+// SetBody sets the "body" field.
+func (u *RequestUpsertOne) SetBody(v string) *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetBody(v)
+	})
+}
+
+// UpdateBody sets the "body" field to the value that was provided on create.
+func (u *RequestUpsertOne) UpdateBody() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateBody()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *RequestUpsertOne) SetDate(v time.Time) *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *RequestUpsertOne) UpdateDate() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// ClearDate clears the value of the "date" field.
+func (u *RequestUpsertOne) ClearDate() *RequestUpsertOne {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearDate()
+	})
+}
+
+// Exec executes the query.
+func (u *RequestUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RequestCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RequestUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *RequestUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: RequestUpsertOne.ID is not supported by MySQL driver. Use RequestUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *RequestUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // RequestCreateBulk is the builder for creating many Request entities in bulk.
 type RequestCreateBulk struct {
 	config
 	builders []*RequestCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Request entities in the database.
@@ -263,6 +585,7 @@ func (rcb *RequestCreateBulk) Save(ctx context.Context) ([]*Request, error) {
 					_, err = mutators[i+1].Mutate(root, rcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = rcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, rcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -309,6 +632,215 @@ func (rcb *RequestCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (rcb *RequestCreateBulk) ExecX(ctx context.Context) {
 	if err := rcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Request.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RequestUpsert) {
+//			SetExternalId(v+v).
+//		}).
+//		Exec(ctx)
+func (rcb *RequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *RequestUpsertBulk {
+	rcb.conflict = opts
+	return &RequestUpsertBulk{
+		create: rcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (rcb *RequestCreateBulk) OnConflictColumns(columns ...string) *RequestUpsertBulk {
+	rcb.conflict = append(rcb.conflict, sql.ConflictColumns(columns...))
+	return &RequestUpsertBulk{
+		create: rcb,
+	}
+}
+
+// RequestUpsertBulk is the builder for "upsert"-ing
+// a bulk of Request nodes.
+type RequestUpsertBulk struct {
+	create *RequestCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(request.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RequestUpsertBulk) UpdateNewValues() *RequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(request.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Request.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *RequestUpsertBulk) Ignore() *RequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RequestUpsertBulk) DoNothing() *RequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RequestCreateBulk.OnConflict
+// documentation for more info.
+func (u *RequestUpsertBulk) Update(set func(*RequestUpsert)) *RequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetExternalId sets the "externalId" field.
+func (u *RequestUpsertBulk) SetExternalId(v string) *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetExternalId(v)
+	})
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *RequestUpsertBulk) UpdateExternalId() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateExternalId()
+	})
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *RequestUpsertBulk) ClearExternalId() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearExternalId()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *RequestUpsertBulk) SetFrom(v string) *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *RequestUpsertBulk) UpdateFrom() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// ClearFrom clears the value of the "from" field.
+func (u *RequestUpsertBulk) ClearFrom() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearFrom()
+	})
+}
+
+// SetSubject sets the "subject" field.
+func (u *RequestUpsertBulk) SetSubject(v string) *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetSubject(v)
+	})
+}
+
+// UpdateSubject sets the "subject" field to the value that was provided on create.
+func (u *RequestUpsertBulk) UpdateSubject() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateSubject()
+	})
+}
+
+// ClearSubject clears the value of the "subject" field.
+func (u *RequestUpsertBulk) ClearSubject() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearSubject()
+	})
+}
+
+// SetBody sets the "body" field.
+func (u *RequestUpsertBulk) SetBody(v string) *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetBody(v)
+	})
+}
+
+// UpdateBody sets the "body" field to the value that was provided on create.
+func (u *RequestUpsertBulk) UpdateBody() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateBody()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *RequestUpsertBulk) SetDate(v time.Time) *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *RequestUpsertBulk) UpdateDate() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// ClearDate clears the value of the "date" field.
+func (u *RequestUpsertBulk) ClearDate() *RequestUpsertBulk {
+	return u.Update(func(s *RequestUpsert) {
+		s.ClearDate()
+	})
+}
+
+// Exec executes the query.
+func (u *RequestUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the RequestCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RequestCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RequestUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

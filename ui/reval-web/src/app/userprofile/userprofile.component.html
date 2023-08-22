@@ -1,0 +1,6 @@
+<div class="flex-parent-element" *ngIf="isAuthenticated">
+    <ng-container *ngIf="userData$ | async as user">
+        <div class="flex-child-element"><span>Hello <em>{{ user?.userData?.name }} ({{ user?.userData?.email }})</em></span></div>
+        <div class="flex-child-element"><button mat-icon-button (click)="logout()"><mat-icon>logout</mat-icon></button></div>
+    </ng-container>
+</div>

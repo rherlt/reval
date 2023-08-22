@@ -26,7 +26,7 @@ func ImportData() error {
 	ctx := context.Background()
 	client, _ := persistence.GetClient()
 
-	err = createUser(ctx, client)
+	//err = createUser(ctx, client)
 	if err != nil {
 		fmt.Printf("Import from Files: %s", err)
 	}
@@ -38,9 +38,10 @@ func ImportData() error {
 	return err
 }
 
+// TODO fix
 func createUser(ctx context.Context, client *ent.Client) error {
 	u, err := client.User.Create().
-		SetUsername("user").
+		SetName("user").
 		Save(ctx)
 
 	var _ = u

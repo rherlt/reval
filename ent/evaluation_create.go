@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -21,6 +23,7 @@ type EvaluationCreate struct {
 	config
 	mutation *EvaluationMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetUserId sets the "userId" field.
@@ -189,6 +192,7 @@ func (ec *EvaluationCreate) createSpec() (*Evaluation, *sqlgraph.CreateSpec) {
 		_node = &Evaluation{config: ec.config}
 		_spec = sqlgraph.NewCreateSpec(evaluation.Table, sqlgraph.NewFieldSpec(evaluation.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = ec.conflict
 	if id, ok := ec.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -242,10 +246,289 @@ func (ec *EvaluationCreate) createSpec() (*Evaluation, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Evaluation.Create().
+//		SetUserId(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.EvaluationUpsert) {
+//			SetUserId(v+v).
+//		}).
+//		Exec(ctx)
+func (ec *EvaluationCreate) OnConflict(opts ...sql.ConflictOption) *EvaluationUpsertOne {
+	ec.conflict = opts
+	return &EvaluationUpsertOne{
+		create: ec,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ec *EvaluationCreate) OnConflictColumns(columns ...string) *EvaluationUpsertOne {
+	ec.conflict = append(ec.conflict, sql.ConflictColumns(columns...))
+	return &EvaluationUpsertOne{
+		create: ec,
+	}
+}
+
+type (
+	// EvaluationUpsertOne is the builder for "upsert"-ing
+	//  one Evaluation node.
+	EvaluationUpsertOne struct {
+		create *EvaluationCreate
+	}
+
+	// EvaluationUpsert is the "OnConflict" setter.
+	EvaluationUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUserId sets the "userId" field.
+func (u *EvaluationUpsert) SetUserId(v uuid.UUID) *EvaluationUpsert {
+	u.Set(evaluation.FieldUserId, v)
+	return u
+}
+
+// UpdateUserId sets the "userId" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateUserId() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldUserId)
+	return u
+}
+
+// SetResponseId sets the "responseId" field.
+func (u *EvaluationUpsert) SetResponseId(v uuid.UUID) *EvaluationUpsert {
+	u.Set(evaluation.FieldResponseId, v)
+	return u
+}
+
+// UpdateResponseId sets the "responseId" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateResponseId() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldResponseId)
+	return u
+}
+
+// SetExternalId sets the "externalId" field.
+func (u *EvaluationUpsert) SetExternalId(v string) *EvaluationUpsert {
+	u.Set(evaluation.FieldExternalId, v)
+	return u
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateExternalId() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldExternalId)
+	return u
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *EvaluationUpsert) ClearExternalId() *EvaluationUpsert {
+	u.SetNull(evaluation.FieldExternalId)
+	return u
+}
+
+// SetDate sets the "date" field.
+func (u *EvaluationUpsert) SetDate(v time.Time) *EvaluationUpsert {
+	u.Set(evaluation.FieldDate, v)
+	return u
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateDate() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldDate)
+	return u
+}
+
+// SetEvaluationResult sets the "evaluationResult" field.
+func (u *EvaluationUpsert) SetEvaluationResult(v string) *EvaluationUpsert {
+	u.Set(evaluation.FieldEvaluationResult, v)
+	return u
+}
+
+// UpdateEvaluationResult sets the "evaluationResult" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateEvaluationResult() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldEvaluationResult)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(evaluation.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *EvaluationUpsertOne) UpdateNewValues() *EvaluationUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(evaluation.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *EvaluationUpsertOne) Ignore() *EvaluationUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *EvaluationUpsertOne) DoNothing() *EvaluationUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the EvaluationCreate.OnConflict
+// documentation for more info.
+func (u *EvaluationUpsertOne) Update(set func(*EvaluationUpsert)) *EvaluationUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&EvaluationUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserId sets the "userId" field.
+func (u *EvaluationUpsertOne) SetUserId(v uuid.UUID) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetUserId(v)
+	})
+}
+
+// UpdateUserId sets the "userId" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateUserId() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateUserId()
+	})
+}
+
+// SetResponseId sets the "responseId" field.
+func (u *EvaluationUpsertOne) SetResponseId(v uuid.UUID) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetResponseId(v)
+	})
+}
+
+// UpdateResponseId sets the "responseId" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateResponseId() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateResponseId()
+	})
+}
+
+// SetExternalId sets the "externalId" field.
+func (u *EvaluationUpsertOne) SetExternalId(v string) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetExternalId(v)
+	})
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateExternalId() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateExternalId()
+	})
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *EvaluationUpsertOne) ClearExternalId() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.ClearExternalId()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *EvaluationUpsertOne) SetDate(v time.Time) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateDate() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// SetEvaluationResult sets the "evaluationResult" field.
+func (u *EvaluationUpsertOne) SetEvaluationResult(v string) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetEvaluationResult(v)
+	})
+}
+
+// UpdateEvaluationResult sets the "evaluationResult" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateEvaluationResult() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateEvaluationResult()
+	})
+}
+
+// Exec executes the query.
+func (u *EvaluationUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for EvaluationCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *EvaluationUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *EvaluationUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: EvaluationUpsertOne.ID is not supported by MySQL driver. Use EvaluationUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *EvaluationUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // EvaluationCreateBulk is the builder for creating many Evaluation entities in bulk.
 type EvaluationCreateBulk struct {
 	config
 	builders []*EvaluationCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Evaluation entities in the database.
@@ -272,6 +555,7 @@ func (ecb *EvaluationCreateBulk) Save(ctx context.Context) ([]*Evaluation, error
 					_, err = mutators[i+1].Mutate(root, ecb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ecb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, ecb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -318,6 +602,194 @@ func (ecb *EvaluationCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (ecb *EvaluationCreateBulk) ExecX(ctx context.Context) {
 	if err := ecb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Evaluation.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.EvaluationUpsert) {
+//			SetUserId(v+v).
+//		}).
+//		Exec(ctx)
+func (ecb *EvaluationCreateBulk) OnConflict(opts ...sql.ConflictOption) *EvaluationUpsertBulk {
+	ecb.conflict = opts
+	return &EvaluationUpsertBulk{
+		create: ecb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ecb *EvaluationCreateBulk) OnConflictColumns(columns ...string) *EvaluationUpsertBulk {
+	ecb.conflict = append(ecb.conflict, sql.ConflictColumns(columns...))
+	return &EvaluationUpsertBulk{
+		create: ecb,
+	}
+}
+
+// EvaluationUpsertBulk is the builder for "upsert"-ing
+// a bulk of Evaluation nodes.
+type EvaluationUpsertBulk struct {
+	create *EvaluationCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(evaluation.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *EvaluationUpsertBulk) UpdateNewValues() *EvaluationUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(evaluation.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Evaluation.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *EvaluationUpsertBulk) Ignore() *EvaluationUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *EvaluationUpsertBulk) DoNothing() *EvaluationUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the EvaluationCreateBulk.OnConflict
+// documentation for more info.
+func (u *EvaluationUpsertBulk) Update(set func(*EvaluationUpsert)) *EvaluationUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&EvaluationUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserId sets the "userId" field.
+func (u *EvaluationUpsertBulk) SetUserId(v uuid.UUID) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetUserId(v)
+	})
+}
+
+// UpdateUserId sets the "userId" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateUserId() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateUserId()
+	})
+}
+
+// SetResponseId sets the "responseId" field.
+func (u *EvaluationUpsertBulk) SetResponseId(v uuid.UUID) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetResponseId(v)
+	})
+}
+
+// UpdateResponseId sets the "responseId" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateResponseId() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateResponseId()
+	})
+}
+
+// SetExternalId sets the "externalId" field.
+func (u *EvaluationUpsertBulk) SetExternalId(v string) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetExternalId(v)
+	})
+}
+
+// UpdateExternalId sets the "externalId" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateExternalId() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateExternalId()
+	})
+}
+
+// ClearExternalId clears the value of the "externalId" field.
+func (u *EvaluationUpsertBulk) ClearExternalId() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.ClearExternalId()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *EvaluationUpsertBulk) SetDate(v time.Time) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateDate() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// SetEvaluationResult sets the "evaluationResult" field.
+func (u *EvaluationUpsertBulk) SetEvaluationResult(v string) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetEvaluationResult(v)
+	})
+}
+
+// UpdateEvaluationResult sets the "evaluationResult" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateEvaluationResult() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateEvaluationResult()
+	})
+}
+
+// Exec executes the query.
+func (u *EvaluationUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the EvaluationCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for EvaluationCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *EvaluationUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

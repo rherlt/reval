@@ -29,9 +29,9 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
-// SetUsername sets the "username" field.
-func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
-	uu.mutation.SetUsername(s)
+// SetName sets the "name" field.
+func (uu *UserUpdate) SetName(s string) *UserUpdate {
+	uu.mutation.SetName(s)
 	return uu
 }
 
@@ -41,17 +41,23 @@ func (uu *UserUpdate) SetExternalId(s string) *UserUpdate {
 	return uu
 }
 
-// SetNillableExternalId sets the "externalId" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableExternalId(s *string) *UserUpdate {
+// SetType sets the "type" field.
+func (uu *UserUpdate) SetType(s string) *UserUpdate {
+	uu.mutation.SetType(s)
+	return uu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableType(s *string) *UserUpdate {
 	if s != nil {
-		uu.SetExternalId(*s)
+		uu.SetType(*s)
 	}
 	return uu
 }
 
-// ClearExternalId clears the value of the "externalId" field.
-func (uu *UserUpdate) ClearExternalId() *UserUpdate {
-	uu.mutation.ClearExternalId()
+// ClearType clears the value of the "type" field.
+func (uu *UserUpdate) ClearType() *UserUpdate {
+	uu.mutation.ClearType()
 	return uu
 }
 
@@ -125,9 +131,14 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
-	if v, ok := uu.mutation.Username(); ok {
-		if err := user.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
+	if v, ok := uu.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.ExternalId(); ok {
+		if err := user.ExternalIdValidator(v); err != nil {
+			return &ValidationError{Name: "externalId", err: fmt.Errorf(`ent: validator failed for field "User.externalId": %w`, err)}
 		}
 	}
 	return nil
@@ -145,14 +156,17 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := uu.mutation.Username(); ok {
-		_spec.SetField(user.FieldUsername, field.TypeString, value)
+	if value, ok := uu.mutation.Name(); ok {
+		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.ExternalId(); ok {
 		_spec.SetField(user.FieldExternalId, field.TypeString, value)
 	}
-	if uu.mutation.ExternalIdCleared() {
-		_spec.ClearField(user.FieldExternalId, field.TypeString)
+	if value, ok := uu.mutation.GetType(); ok {
+		_spec.SetField(user.FieldType, field.TypeString, value)
+	}
+	if uu.mutation.TypeCleared() {
+		_spec.ClearField(user.FieldType, field.TypeString)
 	}
 	if uu.mutation.EvaluationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -219,9 +233,9 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
-// SetUsername sets the "username" field.
-func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
-	uuo.mutation.SetUsername(s)
+// SetName sets the "name" field.
+func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
+	uuo.mutation.SetName(s)
 	return uuo
 }
 
@@ -231,17 +245,23 @@ func (uuo *UserUpdateOne) SetExternalId(s string) *UserUpdateOne {
 	return uuo
 }
 
-// SetNillableExternalId sets the "externalId" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableExternalId(s *string) *UserUpdateOne {
+// SetType sets the "type" field.
+func (uuo *UserUpdateOne) SetType(s string) *UserUpdateOne {
+	uuo.mutation.SetType(s)
+	return uuo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableType(s *string) *UserUpdateOne {
 	if s != nil {
-		uuo.SetExternalId(*s)
+		uuo.SetType(*s)
 	}
 	return uuo
 }
 
-// ClearExternalId clears the value of the "externalId" field.
-func (uuo *UserUpdateOne) ClearExternalId() *UserUpdateOne {
-	uuo.mutation.ClearExternalId()
+// ClearType clears the value of the "type" field.
+func (uuo *UserUpdateOne) ClearType() *UserUpdateOne {
+	uuo.mutation.ClearType()
 	return uuo
 }
 
@@ -328,9 +348,14 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uuo *UserUpdateOne) check() error {
-	if v, ok := uuo.mutation.Username(); ok {
-		if err := user.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
+	if v, ok := uuo.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.ExternalId(); ok {
+		if err := user.ExternalIdValidator(v); err != nil {
+			return &ValidationError{Name: "externalId", err: fmt.Errorf(`ent: validator failed for field "User.externalId": %w`, err)}
 		}
 	}
 	return nil
@@ -365,14 +390,17 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if value, ok := uuo.mutation.Username(); ok {
-		_spec.SetField(user.FieldUsername, field.TypeString, value)
+	if value, ok := uuo.mutation.Name(); ok {
+		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.ExternalId(); ok {
 		_spec.SetField(user.FieldExternalId, field.TypeString, value)
 	}
-	if uuo.mutation.ExternalIdCleared() {
-		_spec.ClearField(user.FieldExternalId, field.TypeString)
+	if value, ok := uuo.mutation.GetType(); ok {
+		_spec.SetField(user.FieldType, field.TypeString, value)
+	}
+	if uuo.mutation.TypeCleared() {
+		_spec.ClearField(user.FieldType, field.TypeString)
 	}
 	if uuo.mutation.EvaluationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

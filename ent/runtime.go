@@ -35,10 +35,14 @@ func init() {
 	response.DefaultID = responseDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescUsername is the schema descriptor for username field.
-	userDescUsername := userFields[1].Descriptor()
-	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
+	// userDescName is the schema descriptor for name field.
+	userDescName := userFields[1].Descriptor()
+	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	user.NameValidator = userDescName.Validators[0].(func(string) error)
+	// userDescExternalId is the schema descriptor for externalId field.
+	userDescExternalId := userFields[2].Descriptor()
+	// user.ExternalIdValidator is a validator for the "externalId" field. It is called by the builders before save.
+	user.ExternalIdValidator = userDescExternalId.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

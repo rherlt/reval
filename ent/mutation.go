@@ -2286,8 +2286,9 @@ type UserMutation struct {
 	op                 Op
 	typ                string
 	id                 *uuid.UUID
-	username           *string
+	name               *string
 	externalId         *string
+	_type              *string
 	clearedFields      map[string]struct{}
 	evaluations        map[uuid.UUID]struct{}
 	removedevaluations map[uuid.UUID]struct{}
@@ -2401,40 +2402,40 @@ func (m *UserMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
-// SetUsername sets the "username" field.
-func (m *UserMutation) SetUsername(s string) {
-	m.username = &s
+// SetName sets the "name" field.
+func (m *UserMutation) SetName(s string) {
+	m.name = &s
 }
 
-// Username returns the value of the "username" field in the mutation.
-func (m *UserMutation) Username() (r string, exists bool) {
-	v := m.username
+// Name returns the value of the "name" field in the mutation.
+func (m *UserMutation) Name() (r string, exists bool) {
+	v := m.name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUsername returns the old "username" field's value of the User entity.
+// OldName returns the old "name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldUsername(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUsername is only allowed on UpdateOne operations")
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUsername requires an ID field in the mutation")
+		return v, errors.New("OldName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUsername: %w", err)
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
 	}
-	return oldValue.Username, nil
+	return oldValue.Name, nil
 }
 
-// ResetUsername resets all changes to the "username" field.
-func (m *UserMutation) ResetUsername() {
-	m.username = nil
+// ResetName resets all changes to the "name" field.
+func (m *UserMutation) ResetName() {
+	m.name = nil
 }
 
 // SetExternalId sets the "externalId" field.
@@ -2468,22 +2469,58 @@ func (m *UserMutation) OldExternalId(ctx context.Context) (v string, err error) 
 	return oldValue.ExternalId, nil
 }
 
-// ClearExternalId clears the value of the "externalId" field.
-func (m *UserMutation) ClearExternalId() {
-	m.externalId = nil
-	m.clearedFields[user.FieldExternalId] = struct{}{}
-}
-
-// ExternalIdCleared returns if the "externalId" field was cleared in this mutation.
-func (m *UserMutation) ExternalIdCleared() bool {
-	_, ok := m.clearedFields[user.FieldExternalId]
-	return ok
-}
-
 // ResetExternalId resets all changes to the "externalId" field.
 func (m *UserMutation) ResetExternalId() {
 	m.externalId = nil
-	delete(m.clearedFields, user.FieldExternalId)
+}
+
+// SetType sets the "type" field.
+func (m *UserMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *UserMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ClearType clears the value of the "type" field.
+func (m *UserMutation) ClearType() {
+	m._type = nil
+	m.clearedFields[user.FieldType] = struct{}{}
+}
+
+// TypeCleared returns if the "type" field was cleared in this mutation.
+func (m *UserMutation) TypeCleared() bool {
+	_, ok := m.clearedFields[user.FieldType]
+	return ok
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *UserMutation) ResetType() {
+	m._type = nil
+	delete(m.clearedFields, user.FieldType)
 }
 
 // AddEvaluationIDs adds the "evaluations" edge to the Evaluation entity by ids.
@@ -2574,12 +2611,15 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.username != nil {
-		fields = append(fields, user.FieldUsername)
+	fields := make([]string, 0, 3)
+	if m.name != nil {
+		fields = append(fields, user.FieldName)
 	}
 	if m.externalId != nil {
 		fields = append(fields, user.FieldExternalId)
+	}
+	if m._type != nil {
+		fields = append(fields, user.FieldType)
 	}
 	return fields
 }
@@ -2589,10 +2629,12 @@ func (m *UserMutation) Fields() []string {
 // schema.
 func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case user.FieldUsername:
-		return m.Username()
+	case user.FieldName:
+		return m.Name()
 	case user.FieldExternalId:
 		return m.ExternalId()
+	case user.FieldType:
+		return m.GetType()
 	}
 	return nil, false
 }
@@ -2602,10 +2644,12 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case user.FieldUsername:
-		return m.OldUsername(ctx)
+	case user.FieldName:
+		return m.OldName(ctx)
 	case user.FieldExternalId:
 		return m.OldExternalId(ctx)
+	case user.FieldType:
+		return m.OldType(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -2615,12 +2659,12 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case user.FieldUsername:
+	case user.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUsername(v)
+		m.SetName(v)
 		return nil
 	case user.FieldExternalId:
 		v, ok := value.(string)
@@ -2628,6 +2672,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetExternalId(v)
+		return nil
+	case user.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -2659,8 +2710,8 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(user.FieldExternalId) {
-		fields = append(fields, user.FieldExternalId)
+	if m.FieldCleared(user.FieldType) {
+		fields = append(fields, user.FieldType)
 	}
 	return fields
 }
@@ -2676,8 +2727,8 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	switch name {
-	case user.FieldExternalId:
-		m.ClearExternalId()
+	case user.FieldType:
+		m.ClearType()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -2687,11 +2738,14 @@ func (m *UserMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
 	switch name {
-	case user.FieldUsername:
-		m.ResetUsername()
+	case user.FieldName:
+		m.ResetName()
 		return nil
 	case user.FieldExternalId:
 		m.ResetExternalId()
+		return nil
+	case user.FieldType:
+		m.ResetType()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
