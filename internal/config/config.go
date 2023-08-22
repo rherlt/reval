@@ -20,6 +20,8 @@ type Config struct {
 	Data_Import_Glob                  string
 	Db_Type                           string
 	Db_Sqlite_Connection              string
+	Oidc_Audience                     string
+	Oidc_Authority                    string
 }
 
 var Current *Config = nil

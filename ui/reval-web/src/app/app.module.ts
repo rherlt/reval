@@ -13,11 +13,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EvaluationComponent } from './evaluation/evaluation.component';
+import { AuthConfigModule } from './auth/auth-config.module';
+import { UserprofileComponent } from './userprofile/userprofile.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    EvaluationComponent
+    EvaluationComponent,
+    UserprofileComponent,
   ],
   imports: [
     BrowserModule,
@@ -31,6 +34,7 @@ import { EvaluationComponent } from './evaluation/evaluation.component';
     MatCardModule,
     MatGridListModule,
     MatBadgeModule,
+    AuthConfigModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

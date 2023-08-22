@@ -7,6 +7,7 @@ import (
 
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
+	"github.com/rherlt/reval/internal/oidc"
 	"github.com/rherlt/reval/internal/persistence"
 
 	"github.com/gin-gonic/gin"
@@ -24,17 +25,12 @@ func (si EvaluationApiServerInterface) GetServerOptions() evaluationapi.GinServe
 
 func (si EvaluationApiServerInterface) GetEvaluation(c *gin.Context, params evaluationapi.GetEvaluationParams) {
 
-	var response = si.getNext()
-	c.IndentedJSON(http.StatusOK, response)
-}
-
-func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResponse {
-
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	response, err := persistence.GetNextResponse(ctx)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	request, err := persistence.GetRequestById(ctx, response.RequestId)
@@ -49,7 +45,7 @@ func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResp
 		fmt.Println(err)
 	}
 
-	var res = evaluationapi.GetEvaluationResponse{
+	var respBody = evaluationapi.GetEvaluationResponse{
 		Id: response.ID.String(),
 		Response: evaluationapi.Message{
 			From:    response.From,
@@ -70,12 +66,12 @@ func (si EvaluationApiServerInterface) getNext() evaluationapi.GetEvaluationResp
 		},
 	}
 
-	return res
+	c.IndentedJSON(http.StatusOK, respBody)
 }
 
 func (si EvaluationApiServerInterface) PostEvaluation(c *gin.Context, params evaluationapi.PostEvaluationParams) {
 
-	ctx := context.Background()
+	ctx := context.TODO()
 	requestBody := new(evaluationapi.PostEvaluationRequest)
 
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -87,11 +83,18 @@ func (si EvaluationApiServerInterface) PostEvaluation(c *gin.Context, params eva
 		return
 	}
 
-	user, err := persistence.GetDemoUser(ctx)
+	sub := c.GetStringMap(oidc.OidcUserClaimsKey)["sub"].(string)
+	name := c.GetStringMap(oidc.OidcUserClaimsKey)["name"].(string)
 
-	evaluation, err := persistence.CreateEvaluationForResponseId(ctx, requestBody.Id, string(requestBody.EvaluationResult), user.ID)
-	if err == nil {
-		fmt.Println(err)
+	userId, err := persistence.UpsertUser(ctx, sub, name, config.Current.Oidc_Authority)
+	if err != nil {
+		http.Error(c.Writer, "error while upserting user", http.StatusInternalServerError)
+		return
+	}
+	evaluation, err := persistence.CreateEvaluationForResponseId(ctx, requestBody.Id, string(requestBody.EvaluationResult), userId)
+	if err != nil {
+		http.Error(c.Writer, "error while inserting evaluation", http.StatusInternalServerError)
+		return
 	}
 
 	if evaluation == nil {

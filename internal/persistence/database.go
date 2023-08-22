@@ -14,6 +14,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/user"
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
 )
@@ -178,6 +179,47 @@ func GetResponseById(ctx context.Context, responseId uuid.UUID) (*ent.Response, 
 	return response, err
 }
 
+func GetUserByExternalId(ctx context.Context, externalId string) (*ent.User, error) {
+
+	client, err := GetClient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get database client: %w", err)
+	}
+
+	user, err := client.User.
+		Query().
+		Where(user.ExternalId(externalId)).
+		First(ctx)
+
+	return user, err
+}
+
+func UpsertUser(ctx context.Context, externalId, name, userType string) (uuid.UUID, error) {
+
+	client, err := GetClient()
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to get database client: %w", err)
+	}
+
+	//default user type if not given
+	if userType == "" {
+		userType = "human"
+	}
+
+	//insert or update... if user exists, update name column
+	userId, err := client.User.
+		Create().
+		SetExternalId(externalId).
+		SetName(name).
+		SetType(userType).
+		OnConflict().
+		UpdateName().
+		// Use the new values that were set on create.
+		ID(ctx)
+
+	return userId, err
+}
+
 func GetDemoUser(ctx context.Context) (*ent.User, error) {
 
 	client, err := GetClient()
@@ -185,11 +227,11 @@ func GetDemoUser(ctx context.Context) (*ent.User, error) {
 		return nil, fmt.Errorf("failed to get database client: %w", err)
 	}
 
-	response, err := client.User.
+	user, err := client.User.
 		Query().
 		First(ctx)
 
-	return response, err
+	return user, err
 }
 
 func CreateEvaluationForResponseId(ctx context.Context, responseId string, evaluationResult string, userId uuid.UUID) (*ent.Evaluation, error) {

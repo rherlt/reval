@@ -13,10 +13,12 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUsername holds the string denoting the username field in the database.
-	FieldUsername = "username"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldExternalId holds the string denoting the externalid field in the database.
 	FieldExternalId = "external_id"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// EdgeEvaluations holds the string denoting the evaluations edge name in mutations.
 	EdgeEvaluations = "evaluations"
 	// Table holds the table name of the user in the database.
@@ -33,8 +35,9 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldUsername,
+	FieldName,
 	FieldExternalId,
+	FieldType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -48,8 +51,10 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	UsernameValidator func(string) error
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// ExternalIdValidator is a validator for the "externalId" field. It is called by the builders before save.
+	ExternalIdValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -62,14 +67,19 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByUsername orders the results by the username field.
-func ByUsername(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUsername, opts...).ToFunc()
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
 // ByExternalId orders the results by the externalId field.
 func ByExternalId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExternalId, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByEvaluationsCount orders the results by evaluations count.
