@@ -12,7 +12,7 @@ var (
 	EvaluationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "external_id", Type: field.TypeString, Nullable: true},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "date", Type: field.TypeTime, Nullable: true},
 		{Name: "evaluation_result", Type: field.TypeString},
 		{Name: "response_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -61,6 +61,7 @@ var (
 		{Name: "body", Type: field.TypeString},
 		{Name: "date", Type: field.TypeTime, Nullable: true},
 		{Name: "request_id", Type: field.TypeUUID},
+		{Name: "scenario_id", Type: field.TypeUUID},
 	}
 	// ResponsesTable holds the schema information for the "responses" table.
 	ResponsesTable = &schema.Table{
@@ -74,7 +75,27 @@ var (
 				RefColumns: []*schema.Column{RequestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
+			{
+				Symbol:     "responses_scenarios_responses",
+				Columns:    []*schema.Column{ResponsesColumns[7]},
+				RefColumns: []*schema.Column{ScenariosColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
 		},
+	}
+	// ScenariosColumns holds the columns for the "scenarios" table.
+	ScenariosColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "external_id", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "desctiption", Type: field.TypeString, Nullable: true},
+		{Name: "date", Type: field.TypeTime, Nullable: true},
+	}
+	// ScenariosTable holds the schema information for the "scenarios" table.
+	ScenariosTable = &schema.Table{
+		Name:       "scenarios",
+		Columns:    ScenariosColumns,
+		PrimaryKey: []*schema.Column{ScenariosColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -94,6 +115,7 @@ var (
 		EvaluationsTable,
 		RequestsTable,
 		ResponsesTable,
+		ScenariosTable,
 		UsersTable,
 	}
 )
@@ -102,4 +124,5 @@ func init() {
 	EvaluationsTable.ForeignKeys[0].RefTable = ResponsesTable
 	EvaluationsTable.ForeignKeys[1].RefTable = UsersTable
 	ResponsesTable.ForeignKeys[0].RefTable = RequestsTable
+	ResponsesTable.ForeignKeys[1].RefTable = ScenariosTable
 }

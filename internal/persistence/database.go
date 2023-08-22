@@ -145,6 +145,7 @@ func GetEvaluationCountByResponseId(ctx context.Context, responseId uuid.UUID) (
 	}
 
 	err = client.Evaluation.Query().
+		Where(evaluation.ResponseId(responseId)).
 		GroupBy(evaluation.FieldEvaluationResult).
 		Aggregate(ent.Count()).
 		Scan(ctx, &v)

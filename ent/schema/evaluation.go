@@ -20,7 +20,7 @@ func (Evaluation) Fields() []ent.Field {
 		field.UUID("userId", uuid.UUID{}),
 		field.UUID("responseId", uuid.UUID{}),
 		field.String("externalId").Optional(),
-		field.Time("date"),
+		field.Time("date").Optional(),
 		field.String("evaluationResult"),
 	}
 }
@@ -33,13 +33,11 @@ func (Evaluation) Edges() []ent.Edge {
 			Unique().
 			Required().
 			Field("userId"),
-		//Annotations(entsql.OnDelete(entsql.Restrict)),
 
 		edge.From("response", Response.Type).
 			Ref("evaluations").
 			Unique().
 			Required().
 			Field("responseId"),
-		//Annotations(entsql.OnDelete(entsql.Restrict)),
 	}
 }

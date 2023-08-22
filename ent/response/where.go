@@ -66,6 +66,11 @@ func RequestId(v uuid.UUID) predicate.Response {
 	return predicate.Response(sql.FieldEQ(FieldRequestId, v))
 }
 
+// ScenarioId applies equality check predicate on the "scenarioId" field. It's identical to ScenarioIdEQ.
+func ScenarioId(v uuid.UUID) predicate.Response {
+	return predicate.Response(sql.FieldEQ(FieldScenarioId, v))
+}
+
 // From applies equality check predicate on the "from" field. It's identical to FromEQ.
 func From(v string) predicate.Response {
 	return predicate.Response(sql.FieldEQ(FieldFrom, v))
@@ -179,6 +184,26 @@ func RequestIdIn(vs ...uuid.UUID) predicate.Response {
 // RequestIdNotIn applies the NotIn predicate on the "requestId" field.
 func RequestIdNotIn(vs ...uuid.UUID) predicate.Response {
 	return predicate.Response(sql.FieldNotIn(FieldRequestId, vs...))
+}
+
+// ScenarioIdEQ applies the EQ predicate on the "scenarioId" field.
+func ScenarioIdEQ(v uuid.UUID) predicate.Response {
+	return predicate.Response(sql.FieldEQ(FieldScenarioId, v))
+}
+
+// ScenarioIdNEQ applies the NEQ predicate on the "scenarioId" field.
+func ScenarioIdNEQ(v uuid.UUID) predicate.Response {
+	return predicate.Response(sql.FieldNEQ(FieldScenarioId, v))
+}
+
+// ScenarioIdIn applies the In predicate on the "scenarioId" field.
+func ScenarioIdIn(vs ...uuid.UUID) predicate.Response {
+	return predicate.Response(sql.FieldIn(FieldScenarioId, vs...))
+}
+
+// ScenarioIdNotIn applies the NotIn predicate on the "scenarioId" field.
+func ScenarioIdNotIn(vs ...uuid.UUID) predicate.Response {
+	return predicate.Response(sql.FieldNotIn(FieldScenarioId, vs...))
 }
 
 // FromEQ applies the EQ predicate on the "from" field.
@@ -461,6 +486,29 @@ func HasRequest() predicate.Response {
 func HasRequestWith(preds ...predicate.Request) predicate.Response {
 	return predicate.Response(func(s *sql.Selector) {
 		step := newRequestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasScenario applies the HasEdge predicate on the "scenario" edge.
+func HasScenario() predicate.Response {
+	return predicate.Response(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ScenarioTable, ScenarioColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScenarioWith applies the HasEdge predicate on the "scenario" edge with a given conditions (other predicates).
+func HasScenarioWith(preds ...predicate.Scenario) predicate.Response {
+	return predicate.Response(func(s *sql.Selector) {
+		step := newScenarioStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

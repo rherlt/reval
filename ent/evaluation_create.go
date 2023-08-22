@@ -58,6 +58,14 @@ func (ec *EvaluationCreate) SetDate(t time.Time) *EvaluationCreate {
 	return ec
 }
 
+// SetNillableDate sets the "date" field if the given value is not nil.
+func (ec *EvaluationCreate) SetNillableDate(t *time.Time) *EvaluationCreate {
+	if t != nil {
+		ec.SetDate(*t)
+	}
+	return ec
+}
+
 // SetEvaluationResult sets the "evaluationResult" field.
 func (ec *EvaluationCreate) SetEvaluationResult(s string) *EvaluationCreate {
 	ec.mutation.SetEvaluationResult(s)
@@ -148,9 +156,6 @@ func (ec *EvaluationCreate) check() error {
 	}
 	if _, ok := ec.mutation.ResponseId(); !ok {
 		return &ValidationError{Name: "responseId", err: errors.New(`ent: missing required field "Evaluation.responseId"`)}
-	}
-	if _, ok := ec.mutation.Date(); !ok {
-		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "Evaluation.date"`)}
 	}
 	if _, ok := ec.mutation.EvaluationResult(); !ok {
 		return &ValidationError{Name: "evaluationResult", err: errors.New(`ent: missing required field "Evaluation.evaluationResult"`)}
@@ -349,6 +354,12 @@ func (u *EvaluationUpsert) UpdateDate() *EvaluationUpsert {
 	return u
 }
 
+// ClearDate clears the value of the "date" field.
+func (u *EvaluationUpsert) ClearDate() *EvaluationUpsert {
+	u.SetNull(evaluation.FieldDate)
+	return u
+}
+
 // SetEvaluationResult sets the "evaluationResult" field.
 func (u *EvaluationUpsert) SetEvaluationResult(v string) *EvaluationUpsert {
 	u.Set(evaluation.FieldEvaluationResult, v)
@@ -469,6 +480,13 @@ func (u *EvaluationUpsertOne) SetDate(v time.Time) *EvaluationUpsertOne {
 func (u *EvaluationUpsertOne) UpdateDate() *EvaluationUpsertOne {
 	return u.Update(func(s *EvaluationUpsert) {
 		s.UpdateDate()
+	})
+}
+
+// ClearDate clears the value of the "date" field.
+func (u *EvaluationUpsertOne) ClearDate() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.ClearDate()
 	})
 }
 
@@ -757,6 +775,13 @@ func (u *EvaluationUpsertBulk) SetDate(v time.Time) *EvaluationUpsertBulk {
 func (u *EvaluationUpsertBulk) UpdateDate() *EvaluationUpsertBulk {
 	return u.Update(func(s *EvaluationUpsert) {
 		s.UpdateDate()
+	})
+}
+
+// ClearDate clears the value of the "date" field.
+func (u *EvaluationUpsertBulk) ClearDate() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.ClearDate()
 	})
 }
 

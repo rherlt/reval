@@ -15,6 +15,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 	"github.com/rherlt/reval/ent/user"
 )
 
@@ -79,6 +80,7 @@ func checkColumn(table, column string) error {
 			evaluation.Table: evaluation.ValidColumn,
 			request.Table:    request.ValidColumn,
 			response.Table:   response.ValidColumn,
+			scenario.Table:   scenario.ValidColumn,
 			user.Table:       user.ValidColumn,
 		})
 	})

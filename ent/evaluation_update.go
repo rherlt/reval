@@ -69,6 +69,20 @@ func (eu *EvaluationUpdate) SetDate(t time.Time) *EvaluationUpdate {
 	return eu
 }
 
+// SetNillableDate sets the "date" field if the given value is not nil.
+func (eu *EvaluationUpdate) SetNillableDate(t *time.Time) *EvaluationUpdate {
+	if t != nil {
+		eu.SetDate(*t)
+	}
+	return eu
+}
+
+// ClearDate clears the value of the "date" field.
+func (eu *EvaluationUpdate) ClearDate() *EvaluationUpdate {
+	eu.mutation.ClearDate()
+	return eu
+}
+
 // SetEvaluationResult sets the "evaluationResult" field.
 func (eu *EvaluationUpdate) SetEvaluationResult(s string) *EvaluationUpdate {
 	eu.mutation.SetEvaluationResult(s)
@@ -172,6 +186,9 @@ func (eu *EvaluationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := eu.mutation.Date(); ok {
 		_spec.SetField(evaluation.FieldDate, field.TypeTime, value)
+	}
+	if eu.mutation.DateCleared() {
+		_spec.ClearField(evaluation.FieldDate, field.TypeTime)
 	}
 	if value, ok := eu.mutation.EvaluationResult(); ok {
 		_spec.SetField(evaluation.FieldEvaluationResult, field.TypeString, value)
@@ -289,6 +306,20 @@ func (euo *EvaluationUpdateOne) ClearExternalId() *EvaluationUpdateOne {
 // SetDate sets the "date" field.
 func (euo *EvaluationUpdateOne) SetDate(t time.Time) *EvaluationUpdateOne {
 	euo.mutation.SetDate(t)
+	return euo
+}
+
+// SetNillableDate sets the "date" field if the given value is not nil.
+func (euo *EvaluationUpdateOne) SetNillableDate(t *time.Time) *EvaluationUpdateOne {
+	if t != nil {
+		euo.SetDate(*t)
+	}
+	return euo
+}
+
+// ClearDate clears the value of the "date" field.
+func (euo *EvaluationUpdateOne) ClearDate() *EvaluationUpdateOne {
+	euo.mutation.ClearDate()
 	return euo
 }
 
@@ -425,6 +456,9 @@ func (euo *EvaluationUpdateOne) sqlSave(ctx context.Context) (_node *Evaluation,
 	}
 	if value, ok := euo.mutation.Date(); ok {
 		_spec.SetField(evaluation.FieldDate, field.TypeTime, value)
+	}
+	if euo.mutation.DateCleared() {
+		_spec.ClearField(evaluation.FieldDate, field.TypeTime)
 	}
 	if value, ok := euo.mutation.EvaluationResult(); ok {
 		_spec.SetField(evaluation.FieldEvaluationResult, field.TypeString, value)

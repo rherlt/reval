@@ -16,6 +16,7 @@ import (
 	"github.com/rherlt/reval/ent/predicate"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 )
 
 // ResponseUpdate is the builder for updating Response entities.
@@ -54,6 +55,12 @@ func (ru *ResponseUpdate) ClearExternalId() *ResponseUpdate {
 // SetRequestId sets the "requestId" field.
 func (ru *ResponseUpdate) SetRequestId(u uuid.UUID) *ResponseUpdate {
 	ru.mutation.SetRequestId(u)
+	return ru
+}
+
+// SetScenarioId sets the "scenarioId" field.
+func (ru *ResponseUpdate) SetScenarioId(u uuid.UUID) *ResponseUpdate {
+	ru.mutation.SetScenarioId(u)
 	return ru
 }
 
@@ -134,6 +141,17 @@ func (ru *ResponseUpdate) SetRequest(r *Request) *ResponseUpdate {
 	return ru.SetRequestID(r.ID)
 }
 
+// SetScenarioID sets the "scenario" edge to the Scenario entity by ID.
+func (ru *ResponseUpdate) SetScenarioID(id uuid.UUID) *ResponseUpdate {
+	ru.mutation.SetScenarioID(id)
+	return ru
+}
+
+// SetScenario sets the "scenario" edge to the Scenario entity.
+func (ru *ResponseUpdate) SetScenario(s *Scenario) *ResponseUpdate {
+	return ru.SetScenarioID(s.ID)
+}
+
 // AddEvaluationIDs adds the "evaluations" edge to the Evaluation entity by IDs.
 func (ru *ResponseUpdate) AddEvaluationIDs(ids ...uuid.UUID) *ResponseUpdate {
 	ru.mutation.AddEvaluationIDs(ids...)
@@ -157,6 +175,12 @@ func (ru *ResponseUpdate) Mutation() *ResponseMutation {
 // ClearRequest clears the "request" edge to the Request entity.
 func (ru *ResponseUpdate) ClearRequest() *ResponseUpdate {
 	ru.mutation.ClearRequest()
+	return ru
+}
+
+// ClearScenario clears the "scenario" edge to the Scenario entity.
+func (ru *ResponseUpdate) ClearScenario() *ResponseUpdate {
+	ru.mutation.ClearScenario()
 	return ru
 }
 
@@ -212,6 +236,9 @@ func (ru *ResponseUpdate) ExecX(ctx context.Context) {
 func (ru *ResponseUpdate) check() error {
 	if _, ok := ru.mutation.RequestID(); ru.mutation.RequestCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Response.request"`)
+	}
+	if _, ok := ru.mutation.ScenarioID(); ru.mutation.ScenarioCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Response.scenario"`)
 	}
 	return nil
 }
@@ -277,6 +304,35 @@ func (ru *ResponseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(request.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ru.mutation.ScenarioCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   response.ScenarioTable,
+			Columns: []string{response.ScenarioColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scenario.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.ScenarioIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   response.ScenarioTable,
+			Columns: []string{response.ScenarioColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scenario.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -375,6 +431,12 @@ func (ruo *ResponseUpdateOne) SetRequestId(u uuid.UUID) *ResponseUpdateOne {
 	return ruo
 }
 
+// SetScenarioId sets the "scenarioId" field.
+func (ruo *ResponseUpdateOne) SetScenarioId(u uuid.UUID) *ResponseUpdateOne {
+	ruo.mutation.SetScenarioId(u)
+	return ruo
+}
+
 // SetFrom sets the "from" field.
 func (ruo *ResponseUpdateOne) SetFrom(s string) *ResponseUpdateOne {
 	ruo.mutation.SetFrom(s)
@@ -452,6 +514,17 @@ func (ruo *ResponseUpdateOne) SetRequest(r *Request) *ResponseUpdateOne {
 	return ruo.SetRequestID(r.ID)
 }
 
+// SetScenarioID sets the "scenario" edge to the Scenario entity by ID.
+func (ruo *ResponseUpdateOne) SetScenarioID(id uuid.UUID) *ResponseUpdateOne {
+	ruo.mutation.SetScenarioID(id)
+	return ruo
+}
+
+// SetScenario sets the "scenario" edge to the Scenario entity.
+func (ruo *ResponseUpdateOne) SetScenario(s *Scenario) *ResponseUpdateOne {
+	return ruo.SetScenarioID(s.ID)
+}
+
 // AddEvaluationIDs adds the "evaluations" edge to the Evaluation entity by IDs.
 func (ruo *ResponseUpdateOne) AddEvaluationIDs(ids ...uuid.UUID) *ResponseUpdateOne {
 	ruo.mutation.AddEvaluationIDs(ids...)
@@ -475,6 +548,12 @@ func (ruo *ResponseUpdateOne) Mutation() *ResponseMutation {
 // ClearRequest clears the "request" edge to the Request entity.
 func (ruo *ResponseUpdateOne) ClearRequest() *ResponseUpdateOne {
 	ruo.mutation.ClearRequest()
+	return ruo
+}
+
+// ClearScenario clears the "scenario" edge to the Scenario entity.
+func (ruo *ResponseUpdateOne) ClearScenario() *ResponseUpdateOne {
+	ruo.mutation.ClearScenario()
 	return ruo
 }
 
@@ -543,6 +622,9 @@ func (ruo *ResponseUpdateOne) ExecX(ctx context.Context) {
 func (ruo *ResponseUpdateOne) check() error {
 	if _, ok := ruo.mutation.RequestID(); ruo.mutation.RequestCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Response.request"`)
+	}
+	if _, ok := ruo.mutation.ScenarioID(); ruo.mutation.ScenarioCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Response.scenario"`)
 	}
 	return nil
 }
@@ -625,6 +707,35 @@ func (ruo *ResponseUpdateOne) sqlSave(ctx context.Context) (_node *Response, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(request.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ruo.mutation.ScenarioCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   response.ScenarioTable,
+			Columns: []string{response.ScenarioColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scenario.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.ScenarioIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   response.ScenarioTable,
+			Columns: []string{response.ScenarioColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scenario.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

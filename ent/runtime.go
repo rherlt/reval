@@ -7,6 +7,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 	"github.com/rherlt/reval/ent/schema"
 	"github.com/rherlt/reval/ent/user"
 )
@@ -33,6 +34,12 @@ func init() {
 	responseDescID := responseFields[0].Descriptor()
 	// response.DefaultID holds the default value on creation for the id field.
 	response.DefaultID = responseDescID.Default.(func() uuid.UUID)
+	scenarioFields := schema.Scenario{}.Fields()
+	_ = scenarioFields
+	// scenarioDescID is the schema descriptor for id field.
+	scenarioDescID := scenarioFields[0].Descriptor()
+	// scenario.DefaultID holds the default value on creation for the id field.
+	scenario.DefaultID = scenarioDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.

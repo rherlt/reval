@@ -17,6 +17,8 @@ const (
 	FieldExternalId = "external_id"
 	// FieldRequestId holds the string denoting the requestid field in the database.
 	FieldRequestId = "request_id"
+	// FieldScenarioId holds the string denoting the scenarioid field in the database.
+	FieldScenarioId = "scenario_id"
 	// FieldFrom holds the string denoting the from field in the database.
 	FieldFrom = "from"
 	// FieldSubject holds the string denoting the subject field in the database.
@@ -27,6 +29,8 @@ const (
 	FieldDate = "date"
 	// EdgeRequest holds the string denoting the request edge name in mutations.
 	EdgeRequest = "request"
+	// EdgeScenario holds the string denoting the scenario edge name in mutations.
+	EdgeScenario = "scenario"
 	// EdgeEvaluations holds the string denoting the evaluations edge name in mutations.
 	EdgeEvaluations = "evaluations"
 	// Table holds the table name of the response in the database.
@@ -38,6 +42,13 @@ const (
 	RequestInverseTable = "requests"
 	// RequestColumn is the table column denoting the request relation/edge.
 	RequestColumn = "request_id"
+	// ScenarioTable is the table that holds the scenario relation/edge.
+	ScenarioTable = "responses"
+	// ScenarioInverseTable is the table name for the Scenario entity.
+	// It exists in this package in order to avoid circular dependency with the "scenario" package.
+	ScenarioInverseTable = "scenarios"
+	// ScenarioColumn is the table column denoting the scenario relation/edge.
+	ScenarioColumn = "scenario_id"
 	// EvaluationsTable is the table that holds the evaluations relation/edge.
 	EvaluationsTable = "evaluations"
 	// EvaluationsInverseTable is the table name for the Evaluation entity.
@@ -52,6 +63,7 @@ var Columns = []string{
 	FieldID,
 	FieldExternalId,
 	FieldRequestId,
+	FieldScenarioId,
 	FieldFrom,
 	FieldSubject,
 	FieldBody,
@@ -91,6 +103,11 @@ func ByRequestId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRequestId, opts...).ToFunc()
 }
 
+// ByScenarioId orders the results by the scenarioId field.
+func ByScenarioId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScenarioId, opts...).ToFunc()
+}
+
 // ByFrom orders the results by the from field.
 func ByFrom(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFrom, opts...).ToFunc()
@@ -118,6 +135,13 @@ func ByRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByScenarioField orders the results by scenario field.
+func ByScenarioField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScenarioStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByEvaluationsCount orders the results by evaluations count.
 func ByEvaluationsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -136,6 +160,13 @@ func newRequestStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RequestInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, RequestTable, RequestColumn),
+	)
+}
+func newScenarioStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScenarioInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ScenarioTable, ScenarioColumn),
 	)
 }
 func newEvaluationsStep() *sqlgraph.Step {
