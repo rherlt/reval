@@ -5,6 +5,7 @@
 
 .scenario-card {
     width: 100%;
+    max-width: 300px;
     padding: 10px;
     border: thin solid;
     border-color:grey;
@@ -14,6 +15,6 @@ mat-divider {
     margin-bottom: 5px;
 }
 
-mat-card-heaer {
+mat-card-header {
     padding: 5px;
 }

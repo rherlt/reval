@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { evaluations } from './data';
 import { ratings } from './exampleRating';
 import { GetStatisticsResponse } from 'src/openapi-client/evaluationapi';
 
@@ -11,21 +10,29 @@ import { GetStatisticsResponse } from 'src/openapi-client/evaluationapi';
 })
 export class ListComponent {
   public ratings: GetStatisticsResponse | undefined;
-  view: [number, number] = [400, 400];
+  view: [number, number] = [300, 250];
 
   gradient: boolean = false;
   showLegend: boolean = false;
   showLabels: boolean = true;
-  isDoughnut: boolean = true;
+  isDoughnut: boolean = false;
 
-  customColors = 
+  progressColors = 
   [
     { name: "rated", value: '#0099ff' }, 
     { name: "unrated", value: '#c9c9c9' },
   ]
+
+  resultColors =
+  [
+    { name: "positive", value: '#24a800' },
+    { name: "negative", value: '#d61500' },
+    { name: "neutral", value: '#fff700'}
+  ]
   
   constructor() {
     Object.assign(this, { ratings });
+    console.log(ratings);
   }
 
   onSelect(data: any): void {
