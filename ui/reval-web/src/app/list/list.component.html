@@ -3,17 +3,16 @@
         <mat-card class="scenario-card">
             <mat-card-header>
                 <mat-card-title>
-                    Szenario {{i}}
+                    Szenario {{rating.name}}
                 </mat-card-title>
             </mat-card-header>
             <mat-divider></mat-divider>
             <div class="scenario-details">
-                <p>LLM: {{i}}</p>
-                <p>Prompt ID: {{i}}</p>
+                <p>LLM: {{rating.description}}</p>
                 <ngx-charts-pie-chart
                     [view]="view"
                     [customColors]="customColors"
-                    [results]=""
+                    [results]="rating.progressStatistics"
                     [gradient]="gradient"
                     [legend]="showLegend"
                     [labels]="showLabels"

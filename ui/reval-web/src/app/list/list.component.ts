@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { evaluations } from './data';
 import { ratings } from './exampleRating';
+import { GetStatisticsResponse } from 'src/openapi-client/evaluationapi';
 
 @Component({
   selector: 'app-list',
@@ -9,7 +10,7 @@ import { ratings } from './exampleRating';
   styleUrls: ['./list.component.css']
 })
 export class ListComponent {
-  ratings: any[] | undefined;
+  public ratings: GetStatisticsResponse | undefined;
   view: [number, number] = [400, 400];
 
   gradient: boolean = false;
@@ -19,9 +20,8 @@ export class ListComponent {
 
   customColors = 
   [
-    { name: "negative", value: '#eb4034' }, 
-    { name: "unanswered", value: '#fae714' },
-    { name: "positive", value: '#19bf19'},
+    { name: "rated", value: '#0099ff' }, 
+    { name: "unrated", value: '#c9c9c9' },
   ]
   
   constructor() {
