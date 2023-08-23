@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { ratings } from './exampleRating';
+//import { ratings } from './exampleRating';
 import { GetStatisticsResponse } from 'src/openapi-client/evaluationapi';
+import { StatisticsService } from 'src/openapi-client/evaluationapi';
 
 @Component({
   selector: 'app-list',
@@ -30,9 +31,15 @@ export class ListComponent {
     { name: "neutral", value: '#fff700'}
   ]
   
-  constructor() {
-    Object.assign(this, { ratings });
-    console.log(ratings);
+  constructor(private readonly statisticService: StatisticsService) {
+  }
+
+  ngOnInit() {
+    this.statisticService.getStatistics().subscribe(e => {
+      this.ratings = e
+     Object.assign(this, { e });
+    })
+    
   }
 
   onSelect(data: any): void {
