@@ -14,9 +14,9 @@ import { HTTP_INTERCEPTORS} from '@angular/common/http';
               silentRenew: true,
               useRefreshToken: true,
               renewTimeBeforeTokenExpiresInSeconds: 30,
-              secureRoutes: ['http://localhost:8080/api'],
+              secureRoutes: ['https://reval.th-b.com/api'],
               customParamsAuthRequest: {
-                audience: 'http://localhost:8080/api',
+                audience: 'https://reval.th-b.com/api',
               },
           }
       })],

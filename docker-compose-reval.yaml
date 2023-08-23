@@ -1,7 +1,48 @@
 services:
   reval:
-    image: ghcr.io/rherlt/reval:feature-fix-hosting
+    container_name: reval
+    image: local/reval:latest
+    depends_on:
+     - nginx-proxy
+     - nginx-proxy-acme
+    environment:
+      - OIDC_AUDIENCE=https://reval.th-b.com/api
+      - VIRTUAL_HOST=reval.th-b.com
+      - LETSENCRYPT_HOST=reval.th-b.com
+      - LETSENCRYPT_EMAIL=webmaster@th-b.com
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
       - "./tmp/:/app/data/" #sqlite database path
+
+# This services are required to run an NGINX reverse proxy that can isse let's encrypt certificates
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginxproxy/nginx-proxy  
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./tmp/hosting/certs:/etc/nginx/certs"
+      - "./tmp/hosting/vhost:/etc/nginx/vhost.d"
+      - "./tmp/hosting/html:/usr/share/nginx/html"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+  nginx-proxy-acme:
+    container_name: nginx-proxy-acme
+    image: nginxproxy/acme-companion
+    depends_on:
+     - nginx-proxy
+    environment:
+      - DEFAULT_EMAIL=webmaster@th-b.com
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - "./tmp/hosting/certs:/etc/nginx/certs"
+      - "./tmp/hosting/vhost:/etc/nginx/vhost.d"
+      - "./tmp/hosting/html:/usr/share/nginx/html"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./tmp/hosting/acme:/etc/acme.sh"
+volumes:
+  hosting:
+    external: true

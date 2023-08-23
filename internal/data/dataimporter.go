@@ -172,7 +172,7 @@ func mapEvaluationResult(str string) string {
 		return string(evaluationapi.Negative)
 
 	}
-	return string(evaluationapi.Neutral)
+	return string(evaluationapi.Negative)
 }
 
 func tryParseTime(str string) *time.Time {

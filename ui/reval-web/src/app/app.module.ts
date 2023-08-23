@@ -15,6 +15,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { EvaluationComponent } from './evaluation/evaluation.component';
 import { AuthConfigModule } from './auth/auth-config.module';
 import { UserprofileComponent } from './userprofile/userprofile.component';
+import { Configuration } from 'src/openapi-client/evaluationapi';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,10 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    ApiModule,
+    ApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: 'https://reval.th-b.com/api',
+      })}),
     MatIconModule,
     MatDividerModule,
     MatButtonModule,

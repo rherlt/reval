@@ -82,6 +82,7 @@ func CloseClient() error {
 
 func setupSqlite() error {
 
+	log.Printf("setupSqlite: try to open database with connection: %s\n", config.Current.Db_Sqlite_Connection)
 	client, err := ent.Open("sqlite3", config.Current.Db_Sqlite_Connection)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
