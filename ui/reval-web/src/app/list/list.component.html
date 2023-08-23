@@ -1,5 +1,5 @@
-<mat-list class="inline-list">
-    <mat-list-item *ngFor="let i of [1,2,3,4]" style="height: 100%;">
+<mat-list *ngIf="ratings != undefined" class="inline-list">
+    <mat-list-item *ngFor="let rating of ratings.scenarios" style="height: 100%;">
         <mat-card class="scenario-card">
             <mat-card-header>
                 <mat-card-title>
@@ -13,7 +13,7 @@
                 <ngx-charts-pie-chart
                     [view]="view"
                     [customColors]="customColors"
-                    [results]="evaluations"
+                    [results]=""
                     [gradient]="gradient"
                     [legend]="showLegend"
                     [labels]="showLabels"
