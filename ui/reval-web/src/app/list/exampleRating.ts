@@ -31,6 +31,41 @@ export var ratings = {
             ],
             "ratingScore": {
                 "min": -1,
+                "value": -0.5,
+                "max": 1
+            }
+        },
+        {
+            "id": "7d1e8d9a-f0c6-4f12-86d4-6956e1b47e01",
+            "name": "Vicuna Szenario",
+            "description": "Das ist das zweite tolle Szenario mit den Antworten aus Vicuna-33b-chat-hf_responses_rated_by_gpt-3.5-turbo.json",
+            "totalResponseCount": 400,
+            "progressStatistics": [
+                {
+                    "name": "rated",
+                    "value": 370
+                },
+                {
+                    "name": "unrated",
+                    "value": 30
+                }
+            ],
+            "resultStatistics": [
+                {
+                    "name": "positive",
+                    "value": 310
+                },
+                {
+                    "name": "negative",
+                    "value": 40
+                },
+                {
+                    "name": "neutral",
+                    "value": 20
+                }
+            ],
+            "ratingScore": {
+                "min": -1,
                 "value": 0.8,
                 "max": 1
             }
