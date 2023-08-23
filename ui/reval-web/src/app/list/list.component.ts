@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { evaluations } from './data';
+import { ratings } from './exampleRating';
 
 @Component({
   selector: 'app-list',
@@ -8,7 +9,7 @@ import { evaluations } from './data';
   styleUrls: ['./list.component.css']
 })
 export class ListComponent {
-  evaluations: any[] | undefined;
+  ratings: any[] | undefined;
   view: [number, number] = [400, 400];
 
   gradient: boolean = false;
@@ -24,7 +25,7 @@ export class ListComponent {
   ]
   
   constructor() {
-    Object.assign(this, { evaluations });
+    Object.assign(this, { ratings });
   }
 
   onSelect(data: any): void {
