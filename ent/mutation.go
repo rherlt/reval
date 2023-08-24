@@ -2421,7 +2421,8 @@ type ScenarioMutation struct {
 	id               *uuid.UUID
 	name             *string
 	externalId       *string
-	desctiption      *string
+	description      *string
+	systemprompt     *string
 	date             *time.Time
 	clearedFields    map[string]struct{}
 	responses        map[uuid.UUID]struct{}
@@ -2621,53 +2622,102 @@ func (m *ScenarioMutation) ResetExternalId() {
 	delete(m.clearedFields, scenario.FieldExternalId)
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (m *ScenarioMutation) SetDesctiption(s string) {
-	m.desctiption = &s
+// SetDescription sets the "description" field.
+func (m *ScenarioMutation) SetDescription(s string) {
+	m.description = &s
 }
 
-// Desctiption returns the value of the "desctiption" field in the mutation.
-func (m *ScenarioMutation) Desctiption() (r string, exists bool) {
-	v := m.desctiption
+// Description returns the value of the "description" field in the mutation.
+func (m *ScenarioMutation) Description() (r string, exists bool) {
+	v := m.description
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDesctiption returns the old "desctiption" field's value of the Scenario entity.
+// OldDescription returns the old "description" field's value of the Scenario entity.
 // If the Scenario object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScenarioMutation) OldDesctiption(ctx context.Context) (v string, err error) {
+func (m *ScenarioMutation) OldDescription(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDesctiption is only allowed on UpdateOne operations")
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDesctiption requires an ID field in the mutation")
+		return v, errors.New("OldDescription requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDesctiption: %w", err)
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
 	}
-	return oldValue.Desctiption, nil
+	return oldValue.Description, nil
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (m *ScenarioMutation) ClearDesctiption() {
-	m.desctiption = nil
-	m.clearedFields[scenario.FieldDesctiption] = struct{}{}
+// ClearDescription clears the value of the "description" field.
+func (m *ScenarioMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[scenario.FieldDescription] = struct{}{}
 }
 
-// DesctiptionCleared returns if the "desctiption" field was cleared in this mutation.
-func (m *ScenarioMutation) DesctiptionCleared() bool {
-	_, ok := m.clearedFields[scenario.FieldDesctiption]
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *ScenarioMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[scenario.FieldDescription]
 	return ok
 }
 
-// ResetDesctiption resets all changes to the "desctiption" field.
-func (m *ScenarioMutation) ResetDesctiption() {
-	m.desctiption = nil
-	delete(m.clearedFields, scenario.FieldDesctiption)
+// ResetDescription resets all changes to the "description" field.
+func (m *ScenarioMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, scenario.FieldDescription)
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (m *ScenarioMutation) SetSystemprompt(s string) {
+	m.systemprompt = &s
+}
+
+// Systemprompt returns the value of the "systemprompt" field in the mutation.
+func (m *ScenarioMutation) Systemprompt() (r string, exists bool) {
+	v := m.systemprompt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSystemprompt returns the old "systemprompt" field's value of the Scenario entity.
+// If the Scenario object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ScenarioMutation) OldSystemprompt(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSystemprompt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSystemprompt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSystemprompt: %w", err)
+	}
+	return oldValue.Systemprompt, nil
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (m *ScenarioMutation) ClearSystemprompt() {
+	m.systemprompt = nil
+	m.clearedFields[scenario.FieldSystemprompt] = struct{}{}
+}
+
+// SystempromptCleared returns if the "systemprompt" field was cleared in this mutation.
+func (m *ScenarioMutation) SystempromptCleared() bool {
+	_, ok := m.clearedFields[scenario.FieldSystemprompt]
+	return ok
+}
+
+// ResetSystemprompt resets all changes to the "systemprompt" field.
+func (m *ScenarioMutation) ResetSystemprompt() {
+	m.systemprompt = nil
+	delete(m.clearedFields, scenario.FieldSystemprompt)
 }
 
 // SetDate sets the "date" field.
@@ -2807,15 +2857,18 @@ func (m *ScenarioMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ScenarioMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.name != nil {
 		fields = append(fields, scenario.FieldName)
 	}
 	if m.externalId != nil {
 		fields = append(fields, scenario.FieldExternalId)
 	}
-	if m.desctiption != nil {
-		fields = append(fields, scenario.FieldDesctiption)
+	if m.description != nil {
+		fields = append(fields, scenario.FieldDescription)
+	}
+	if m.systemprompt != nil {
+		fields = append(fields, scenario.FieldSystemprompt)
 	}
 	if m.date != nil {
 		fields = append(fields, scenario.FieldDate)
@@ -2832,8 +2885,10 @@ func (m *ScenarioMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case scenario.FieldExternalId:
 		return m.ExternalId()
-	case scenario.FieldDesctiption:
-		return m.Desctiption()
+	case scenario.FieldDescription:
+		return m.Description()
+	case scenario.FieldSystemprompt:
+		return m.Systemprompt()
 	case scenario.FieldDate:
 		return m.Date()
 	}
@@ -2849,8 +2904,10 @@ func (m *ScenarioMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldName(ctx)
 	case scenario.FieldExternalId:
 		return m.OldExternalId(ctx)
-	case scenario.FieldDesctiption:
-		return m.OldDesctiption(ctx)
+	case scenario.FieldDescription:
+		return m.OldDescription(ctx)
+	case scenario.FieldSystemprompt:
+		return m.OldSystemprompt(ctx)
 	case scenario.FieldDate:
 		return m.OldDate(ctx)
 	}
@@ -2876,12 +2933,19 @@ func (m *ScenarioMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetExternalId(v)
 		return nil
-	case scenario.FieldDesctiption:
+	case scenario.FieldDescription:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDesctiption(v)
+		m.SetDescription(v)
+		return nil
+	case scenario.FieldSystemprompt:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSystemprompt(v)
 		return nil
 	case scenario.FieldDate:
 		v, ok := value.(time.Time)
@@ -2923,8 +2987,11 @@ func (m *ScenarioMutation) ClearedFields() []string {
 	if m.FieldCleared(scenario.FieldExternalId) {
 		fields = append(fields, scenario.FieldExternalId)
 	}
-	if m.FieldCleared(scenario.FieldDesctiption) {
-		fields = append(fields, scenario.FieldDesctiption)
+	if m.FieldCleared(scenario.FieldDescription) {
+		fields = append(fields, scenario.FieldDescription)
+	}
+	if m.FieldCleared(scenario.FieldSystemprompt) {
+		fields = append(fields, scenario.FieldSystemprompt)
 	}
 	if m.FieldCleared(scenario.FieldDate) {
 		fields = append(fields, scenario.FieldDate)
@@ -2946,8 +3013,11 @@ func (m *ScenarioMutation) ClearField(name string) error {
 	case scenario.FieldExternalId:
 		m.ClearExternalId()
 		return nil
-	case scenario.FieldDesctiption:
-		m.ClearDesctiption()
+	case scenario.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case scenario.FieldSystemprompt:
+		m.ClearSystemprompt()
 		return nil
 	case scenario.FieldDate:
 		m.ClearDate()
@@ -2966,8 +3036,11 @@ func (m *ScenarioMutation) ResetField(name string) error {
 	case scenario.FieldExternalId:
 		m.ResetExternalId()
 		return nil
-	case scenario.FieldDesctiption:
-		m.ResetDesctiption()
+	case scenario.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case scenario.FieldSystemprompt:
+		m.ResetSystemprompt()
 		return nil
 	case scenario.FieldDate:
 		m.ResetDate()

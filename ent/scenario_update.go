@@ -56,23 +56,43 @@ func (su *ScenarioUpdate) ClearExternalId() *ScenarioUpdate {
 	return su
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (su *ScenarioUpdate) SetDesctiption(s string) *ScenarioUpdate {
-	su.mutation.SetDesctiption(s)
+// SetDescription sets the "description" field.
+func (su *ScenarioUpdate) SetDescription(s string) *ScenarioUpdate {
+	su.mutation.SetDescription(s)
 	return su
 }
 
-// SetNillableDesctiption sets the "desctiption" field if the given value is not nil.
-func (su *ScenarioUpdate) SetNillableDesctiption(s *string) *ScenarioUpdate {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (su *ScenarioUpdate) SetNillableDescription(s *string) *ScenarioUpdate {
 	if s != nil {
-		su.SetDesctiption(*s)
+		su.SetDescription(*s)
 	}
 	return su
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (su *ScenarioUpdate) ClearDesctiption() *ScenarioUpdate {
-	su.mutation.ClearDesctiption()
+// ClearDescription clears the value of the "description" field.
+func (su *ScenarioUpdate) ClearDescription() *ScenarioUpdate {
+	su.mutation.ClearDescription()
+	return su
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (su *ScenarioUpdate) SetSystemprompt(s string) *ScenarioUpdate {
+	su.mutation.SetSystemprompt(s)
+	return su
+}
+
+// SetNillableSystemprompt sets the "systemprompt" field if the given value is not nil.
+func (su *ScenarioUpdate) SetNillableSystemprompt(s *string) *ScenarioUpdate {
+	if s != nil {
+		su.SetSystemprompt(*s)
+	}
+	return su
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (su *ScenarioUpdate) ClearSystemprompt() *ScenarioUpdate {
+	su.mutation.ClearSystemprompt()
 	return su
 }
 
@@ -182,11 +202,17 @@ func (su *ScenarioUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if su.mutation.ExternalIdCleared() {
 		_spec.ClearField(scenario.FieldExternalId, field.TypeString)
 	}
-	if value, ok := su.mutation.Desctiption(); ok {
-		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
+	if value, ok := su.mutation.Description(); ok {
+		_spec.SetField(scenario.FieldDescription, field.TypeString, value)
 	}
-	if su.mutation.DesctiptionCleared() {
-		_spec.ClearField(scenario.FieldDesctiption, field.TypeString)
+	if su.mutation.DescriptionCleared() {
+		_spec.ClearField(scenario.FieldDescription, field.TypeString)
+	}
+	if value, ok := su.mutation.Systemprompt(); ok {
+		_spec.SetField(scenario.FieldSystemprompt, field.TypeString, value)
+	}
+	if su.mutation.SystempromptCleared() {
+		_spec.ClearField(scenario.FieldSystemprompt, field.TypeString)
 	}
 	if value, ok := su.mutation.Date(); ok {
 		_spec.SetField(scenario.FieldDate, field.TypeTime, value)
@@ -285,23 +311,43 @@ func (suo *ScenarioUpdateOne) ClearExternalId() *ScenarioUpdateOne {
 	return suo
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (suo *ScenarioUpdateOne) SetDesctiption(s string) *ScenarioUpdateOne {
-	suo.mutation.SetDesctiption(s)
+// SetDescription sets the "description" field.
+func (suo *ScenarioUpdateOne) SetDescription(s string) *ScenarioUpdateOne {
+	suo.mutation.SetDescription(s)
 	return suo
 }
 
-// SetNillableDesctiption sets the "desctiption" field if the given value is not nil.
-func (suo *ScenarioUpdateOne) SetNillableDesctiption(s *string) *ScenarioUpdateOne {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (suo *ScenarioUpdateOne) SetNillableDescription(s *string) *ScenarioUpdateOne {
 	if s != nil {
-		suo.SetDesctiption(*s)
+		suo.SetDescription(*s)
 	}
 	return suo
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (suo *ScenarioUpdateOne) ClearDesctiption() *ScenarioUpdateOne {
-	suo.mutation.ClearDesctiption()
+// ClearDescription clears the value of the "description" field.
+func (suo *ScenarioUpdateOne) ClearDescription() *ScenarioUpdateOne {
+	suo.mutation.ClearDescription()
+	return suo
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (suo *ScenarioUpdateOne) SetSystemprompt(s string) *ScenarioUpdateOne {
+	suo.mutation.SetSystemprompt(s)
+	return suo
+}
+
+// SetNillableSystemprompt sets the "systemprompt" field if the given value is not nil.
+func (suo *ScenarioUpdateOne) SetNillableSystemprompt(s *string) *ScenarioUpdateOne {
+	if s != nil {
+		suo.SetSystemprompt(*s)
+	}
+	return suo
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (suo *ScenarioUpdateOne) ClearSystemprompt() *ScenarioUpdateOne {
+	suo.mutation.ClearSystemprompt()
 	return suo
 }
 
@@ -441,11 +487,17 @@ func (suo *ScenarioUpdateOne) sqlSave(ctx context.Context) (_node *Scenario, err
 	if suo.mutation.ExternalIdCleared() {
 		_spec.ClearField(scenario.FieldExternalId, field.TypeString)
 	}
-	if value, ok := suo.mutation.Desctiption(); ok {
-		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
+	if value, ok := suo.mutation.Description(); ok {
+		_spec.SetField(scenario.FieldDescription, field.TypeString, value)
 	}
-	if suo.mutation.DesctiptionCleared() {
-		_spec.ClearField(scenario.FieldDesctiption, field.TypeString)
+	if suo.mutation.DescriptionCleared() {
+		_spec.ClearField(scenario.FieldDescription, field.TypeString)
+	}
+	if value, ok := suo.mutation.Systemprompt(); ok {
+		_spec.SetField(scenario.FieldSystemprompt, field.TypeString, value)
+	}
+	if suo.mutation.SystempromptCleared() {
+		_spec.ClearField(scenario.FieldSystemprompt, field.TypeString)
 	}
 	if value, ok := suo.mutation.Date(); ok {
 		_spec.SetField(scenario.FieldDate, field.TypeTime, value)
