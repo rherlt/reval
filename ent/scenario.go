@@ -22,8 +22,10 @@ type Scenario struct {
 	Name string `json:"name,omitempty"`
 	// ExternalId holds the value of the "externalId" field.
 	ExternalId string `json:"externalId,omitempty"`
-	// Desctiption holds the value of the "desctiption" field.
-	Desctiption string `json:"desctiption,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Systemprompt holds the value of the "systemprompt" field.
+	Systemprompt string `json:"systemprompt,omitempty"`
 	// Date holds the value of the "date" field.
 	Date time.Time `json:"date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -55,7 +57,7 @@ func (*Scenario) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case scenario.FieldName, scenario.FieldExternalId, scenario.FieldDesctiption:
+		case scenario.FieldName, scenario.FieldExternalId, scenario.FieldDescription, scenario.FieldSystemprompt:
 			values[i] = new(sql.NullString)
 		case scenario.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -94,11 +96,17 @@ func (s *Scenario) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.ExternalId = value.String
 			}
-		case scenario.FieldDesctiption:
+		case scenario.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field desctiption", values[i])
+				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				s.Desctiption = value.String
+				s.Description = value.String
+			}
+		case scenario.FieldSystemprompt:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field systemprompt", values[i])
+			} else if value.Valid {
+				s.Systemprompt = value.String
 			}
 		case scenario.FieldDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -153,8 +161,11 @@ func (s *Scenario) String() string {
 	builder.WriteString("externalId=")
 	builder.WriteString(s.ExternalId)
 	builder.WriteString(", ")
-	builder.WriteString("desctiption=")
-	builder.WriteString(s.Desctiption)
+	builder.WriteString("description=")
+	builder.WriteString(s.Description)
+	builder.WriteString(", ")
+	builder.WriteString("systemprompt=")
+	builder.WriteString(s.Systemprompt)
 	builder.WriteString(", ")
 	builder.WriteString("date=")
 	builder.WriteString(s.Date.Format(time.ANSIC))
