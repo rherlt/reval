@@ -17,8 +17,10 @@ const (
 	FieldName = "name"
 	// FieldExternalId holds the string denoting the externalid field in the database.
 	FieldExternalId = "external_id"
-	// FieldDesctiption holds the string denoting the desctiption field in the database.
-	FieldDesctiption = "desctiption"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldSystemprompt holds the string denoting the systemprompt field in the database.
+	FieldSystemprompt = "systemprompt"
 	// FieldDate holds the string denoting the date field in the database.
 	FieldDate = "date"
 	// EdgeResponses holds the string denoting the responses edge name in mutations.
@@ -39,7 +41,8 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldExternalId,
-	FieldDesctiption,
+	FieldDescription,
+	FieldSystemprompt,
 	FieldDate,
 }
 
@@ -76,9 +79,14 @@ func ByExternalId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExternalId, opts...).ToFunc()
 }
 
-// ByDesctiption orders the results by the desctiption field.
-func ByDesctiption(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDesctiption, opts...).ToFunc()
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// BySystemprompt orders the results by the systemprompt field.
+func BySystemprompt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSystemprompt, opts...).ToFunc()
 }
 
 // ByDate orders the results by the date field.

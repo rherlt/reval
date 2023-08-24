@@ -45,16 +45,30 @@ func (sc *ScenarioCreate) SetNillableExternalId(s *string) *ScenarioCreate {
 	return sc
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (sc *ScenarioCreate) SetDesctiption(s string) *ScenarioCreate {
-	sc.mutation.SetDesctiption(s)
+// SetDescription sets the "description" field.
+func (sc *ScenarioCreate) SetDescription(s string) *ScenarioCreate {
+	sc.mutation.SetDescription(s)
 	return sc
 }
 
-// SetNillableDesctiption sets the "desctiption" field if the given value is not nil.
-func (sc *ScenarioCreate) SetNillableDesctiption(s *string) *ScenarioCreate {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (sc *ScenarioCreate) SetNillableDescription(s *string) *ScenarioCreate {
 	if s != nil {
-		sc.SetDesctiption(*s)
+		sc.SetDescription(*s)
+	}
+	return sc
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (sc *ScenarioCreate) SetSystemprompt(s string) *ScenarioCreate {
+	sc.mutation.SetSystemprompt(s)
+	return sc
+}
+
+// SetNillableSystemprompt sets the "systemprompt" field if the given value is not nil.
+func (sc *ScenarioCreate) SetNillableSystemprompt(s *string) *ScenarioCreate {
+	if s != nil {
+		sc.SetSystemprompt(*s)
 	}
 	return sc
 }
@@ -192,9 +206,13 @@ func (sc *ScenarioCreate) createSpec() (*Scenario, *sqlgraph.CreateSpec) {
 		_spec.SetField(scenario.FieldExternalId, field.TypeString, value)
 		_node.ExternalId = value
 	}
-	if value, ok := sc.mutation.Desctiption(); ok {
-		_spec.SetField(scenario.FieldDesctiption, field.TypeString, value)
-		_node.Desctiption = value
+	if value, ok := sc.mutation.Description(); ok {
+		_spec.SetField(scenario.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if value, ok := sc.mutation.Systemprompt(); ok {
+		_spec.SetField(scenario.FieldSystemprompt, field.TypeString, value)
+		_node.Systemprompt = value
 	}
 	if value, ok := sc.mutation.Date(); ok {
 		_spec.SetField(scenario.FieldDate, field.TypeTime, value)
@@ -298,21 +316,39 @@ func (u *ScenarioUpsert) ClearExternalId() *ScenarioUpsert {
 	return u
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (u *ScenarioUpsert) SetDesctiption(v string) *ScenarioUpsert {
-	u.Set(scenario.FieldDesctiption, v)
+// SetDescription sets the "description" field.
+func (u *ScenarioUpsert) SetDescription(v string) *ScenarioUpsert {
+	u.Set(scenario.FieldDescription, v)
 	return u
 }
 
-// UpdateDesctiption sets the "desctiption" field to the value that was provided on create.
-func (u *ScenarioUpsert) UpdateDesctiption() *ScenarioUpsert {
-	u.SetExcluded(scenario.FieldDesctiption)
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *ScenarioUpsert) UpdateDescription() *ScenarioUpsert {
+	u.SetExcluded(scenario.FieldDescription)
 	return u
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (u *ScenarioUpsert) ClearDesctiption() *ScenarioUpsert {
-	u.SetNull(scenario.FieldDesctiption)
+// ClearDescription clears the value of the "description" field.
+func (u *ScenarioUpsert) ClearDescription() *ScenarioUpsert {
+	u.SetNull(scenario.FieldDescription)
+	return u
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (u *ScenarioUpsert) SetSystemprompt(v string) *ScenarioUpsert {
+	u.Set(scenario.FieldSystemprompt, v)
+	return u
+}
+
+// UpdateSystemprompt sets the "systemprompt" field to the value that was provided on create.
+func (u *ScenarioUpsert) UpdateSystemprompt() *ScenarioUpsert {
+	u.SetExcluded(scenario.FieldSystemprompt)
+	return u
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (u *ScenarioUpsert) ClearSystemprompt() *ScenarioUpsert {
+	u.SetNull(scenario.FieldSystemprompt)
 	return u
 }
 
@@ -417,24 +453,45 @@ func (u *ScenarioUpsertOne) ClearExternalId() *ScenarioUpsertOne {
 	})
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (u *ScenarioUpsertOne) SetDesctiption(v string) *ScenarioUpsertOne {
+// SetDescription sets the "description" field.
+func (u *ScenarioUpsertOne) SetDescription(v string) *ScenarioUpsertOne {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.SetDesctiption(v)
+		s.SetDescription(v)
 	})
 }
 
-// UpdateDesctiption sets the "desctiption" field to the value that was provided on create.
-func (u *ScenarioUpsertOne) UpdateDesctiption() *ScenarioUpsertOne {
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *ScenarioUpsertOne) UpdateDescription() *ScenarioUpsertOne {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.UpdateDesctiption()
+		s.UpdateDescription()
 	})
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (u *ScenarioUpsertOne) ClearDesctiption() *ScenarioUpsertOne {
+// ClearDescription clears the value of the "description" field.
+func (u *ScenarioUpsertOne) ClearDescription() *ScenarioUpsertOne {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.ClearDesctiption()
+		s.ClearDescription()
+	})
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (u *ScenarioUpsertOne) SetSystemprompt(v string) *ScenarioUpsertOne {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.SetSystemprompt(v)
+	})
+}
+
+// UpdateSystemprompt sets the "systemprompt" field to the value that was provided on create.
+func (u *ScenarioUpsertOne) UpdateSystemprompt() *ScenarioUpsertOne {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.UpdateSystemprompt()
+	})
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (u *ScenarioUpsertOne) ClearSystemprompt() *ScenarioUpsertOne {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.ClearSystemprompt()
 	})
 }
 
@@ -705,24 +762,45 @@ func (u *ScenarioUpsertBulk) ClearExternalId() *ScenarioUpsertBulk {
 	})
 }
 
-// SetDesctiption sets the "desctiption" field.
-func (u *ScenarioUpsertBulk) SetDesctiption(v string) *ScenarioUpsertBulk {
+// SetDescription sets the "description" field.
+func (u *ScenarioUpsertBulk) SetDescription(v string) *ScenarioUpsertBulk {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.SetDesctiption(v)
+		s.SetDescription(v)
 	})
 }
 
-// UpdateDesctiption sets the "desctiption" field to the value that was provided on create.
-func (u *ScenarioUpsertBulk) UpdateDesctiption() *ScenarioUpsertBulk {
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *ScenarioUpsertBulk) UpdateDescription() *ScenarioUpsertBulk {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.UpdateDesctiption()
+		s.UpdateDescription()
 	})
 }
 
-// ClearDesctiption clears the value of the "desctiption" field.
-func (u *ScenarioUpsertBulk) ClearDesctiption() *ScenarioUpsertBulk {
+// ClearDescription clears the value of the "description" field.
+func (u *ScenarioUpsertBulk) ClearDescription() *ScenarioUpsertBulk {
 	return u.Update(func(s *ScenarioUpsert) {
-		s.ClearDesctiption()
+		s.ClearDescription()
+	})
+}
+
+// SetSystemprompt sets the "systemprompt" field.
+func (u *ScenarioUpsertBulk) SetSystemprompt(v string) *ScenarioUpsertBulk {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.SetSystemprompt(v)
+	})
+}
+
+// UpdateSystemprompt sets the "systemprompt" field to the value that was provided on create.
+func (u *ScenarioUpsertBulk) UpdateSystemprompt() *ScenarioUpsertBulk {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.UpdateSystemprompt()
+	})
+}
+
+// ClearSystemprompt clears the value of the "systemprompt" field.
+func (u *ScenarioUpsertBulk) ClearSystemprompt() *ScenarioUpsertBulk {
+	return u.Update(func(s *ScenarioUpsert) {
+		s.ClearSystemprompt()
 	})
 }
 

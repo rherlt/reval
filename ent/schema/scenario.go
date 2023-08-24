@@ -19,7 +19,8 @@ func (Scenario) Fields() []ent.Field {
 			Default(uuid.New),
 		field.String("name"),
 		field.String("externalId").Optional(),
-		field.String("desctiption").Optional(),
+		field.String("description").Optional(),
+		field.String("systemprompt").Optional(),
 		field.Time("date").Optional(),
 	}
 }
