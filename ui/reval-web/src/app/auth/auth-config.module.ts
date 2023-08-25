@@ -6,7 +6,7 @@ import { HTTP_INTERCEPTORS} from '@angular/common/http';
     imports: [AuthModule.forRoot({
         config: {
               authority: 'https://th-b.eu.auth0.com',
-              redirectUrl: window.location.origin,
+              redirectUrl: window.location.origin+'/ui/',
               postLogoutRedirectUri: window.location.origin,
               clientId: 'FNitzlm8QQkjmjDmMG1m2pgHyOATo1xo',
               scope: 'openid profile email offline_access',
@@ -14,9 +14,9 @@ import { HTTP_INTERCEPTORS} from '@angular/common/http';
               silentRenew: true,
               useRefreshToken: true,
               renewTimeBeforeTokenExpiresInSeconds: 30,
-              secureRoutes: ['http://localhost:8080/api'],
+              secureRoutes: ['https://reval.th-b.com/api'],
               customParamsAuthRequest: {
-                audience: 'http://localhost:8080/api',
+                audience: 'https://reval.th-b.com/api',
               },
           }
       })],

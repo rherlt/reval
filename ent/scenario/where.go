@@ -66,9 +66,14 @@ func ExternalId(v string) predicate.Scenario {
 	return predicate.Scenario(sql.FieldEQ(FieldExternalId, v))
 }
 
-// Desctiption applies equality check predicate on the "desctiption" field. It's identical to DesctiptionEQ.
-func Desctiption(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldEQ(FieldDesctiption, v))
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEQ(FieldDescription, v))
+}
+
+// Systemprompt applies equality check predicate on the "systemprompt" field. It's identical to SystempromptEQ.
+func Systemprompt(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEQ(FieldSystemprompt, v))
 }
 
 // Date applies equality check predicate on the "date" field. It's identical to DateEQ.
@@ -216,79 +221,154 @@ func ExternalIdContainsFold(v string) predicate.Scenario {
 	return predicate.Scenario(sql.FieldContainsFold(FieldExternalId, v))
 }
 
-// DesctiptionEQ applies the EQ predicate on the "desctiption" field.
-func DesctiptionEQ(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldEQ(FieldDesctiption, v))
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEQ(FieldDescription, v))
 }
 
-// DesctiptionNEQ applies the NEQ predicate on the "desctiption" field.
-func DesctiptionNEQ(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldNEQ(FieldDesctiption, v))
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldNEQ(FieldDescription, v))
 }
 
-// DesctiptionIn applies the In predicate on the "desctiption" field.
-func DesctiptionIn(vs ...string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldIn(FieldDesctiption, vs...))
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldIn(FieldDescription, vs...))
 }
 
-// DesctiptionNotIn applies the NotIn predicate on the "desctiption" field.
-func DesctiptionNotIn(vs ...string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldNotIn(FieldDesctiption, vs...))
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldNotIn(FieldDescription, vs...))
 }
 
-// DesctiptionGT applies the GT predicate on the "desctiption" field.
-func DesctiptionGT(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldGT(FieldDesctiption, v))
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldGT(FieldDescription, v))
 }
 
-// DesctiptionGTE applies the GTE predicate on the "desctiption" field.
-func DesctiptionGTE(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldGTE(FieldDesctiption, v))
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldGTE(FieldDescription, v))
 }
 
-// DesctiptionLT applies the LT predicate on the "desctiption" field.
-func DesctiptionLT(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldLT(FieldDesctiption, v))
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldLT(FieldDescription, v))
 }
 
-// DesctiptionLTE applies the LTE predicate on the "desctiption" field.
-func DesctiptionLTE(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldLTE(FieldDesctiption, v))
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldLTE(FieldDescription, v))
 }
 
-// DesctiptionContains applies the Contains predicate on the "desctiption" field.
-func DesctiptionContains(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldContains(FieldDesctiption, v))
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldContains(FieldDescription, v))
 }
 
-// DesctiptionHasPrefix applies the HasPrefix predicate on the "desctiption" field.
-func DesctiptionHasPrefix(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldHasPrefix(FieldDesctiption, v))
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldHasPrefix(FieldDescription, v))
 }
 
-// DesctiptionHasSuffix applies the HasSuffix predicate on the "desctiption" field.
-func DesctiptionHasSuffix(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldHasSuffix(FieldDesctiption, v))
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldHasSuffix(FieldDescription, v))
 }
 
-// DesctiptionIsNil applies the IsNil predicate on the "desctiption" field.
-func DesctiptionIsNil() predicate.Scenario {
-	return predicate.Scenario(sql.FieldIsNull(FieldDesctiption))
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Scenario {
+	return predicate.Scenario(sql.FieldIsNull(FieldDescription))
 }
 
-// DesctiptionNotNil applies the NotNil predicate on the "desctiption" field.
-func DesctiptionNotNil() predicate.Scenario {
-	return predicate.Scenario(sql.FieldNotNull(FieldDesctiption))
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Scenario {
+	return predicate.Scenario(sql.FieldNotNull(FieldDescription))
 }
 
-// DesctiptionEqualFold applies the EqualFold predicate on the "desctiption" field.
-func DesctiptionEqualFold(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldEqualFold(FieldDesctiption, v))
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEqualFold(FieldDescription, v))
 }
 
-// DesctiptionContainsFold applies the ContainsFold predicate on the "desctiption" field.
-func DesctiptionContainsFold(v string) predicate.Scenario {
-	return predicate.Scenario(sql.FieldContainsFold(FieldDesctiption, v))
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// SystempromptEQ applies the EQ predicate on the "systemprompt" field.
+func SystempromptEQ(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEQ(FieldSystemprompt, v))
+}
+
+// SystempromptNEQ applies the NEQ predicate on the "systemprompt" field.
+func SystempromptNEQ(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldNEQ(FieldSystemprompt, v))
+}
+
+// SystempromptIn applies the In predicate on the "systemprompt" field.
+func SystempromptIn(vs ...string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldIn(FieldSystemprompt, vs...))
+}
+
+// SystempromptNotIn applies the NotIn predicate on the "systemprompt" field.
+func SystempromptNotIn(vs ...string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldNotIn(FieldSystemprompt, vs...))
+}
+
+// SystempromptGT applies the GT predicate on the "systemprompt" field.
+func SystempromptGT(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldGT(FieldSystemprompt, v))
+}
+
+// SystempromptGTE applies the GTE predicate on the "systemprompt" field.
+func SystempromptGTE(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldGTE(FieldSystemprompt, v))
+}
+
+// SystempromptLT applies the LT predicate on the "systemprompt" field.
+func SystempromptLT(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldLT(FieldSystemprompt, v))
+}
+
+// SystempromptLTE applies the LTE predicate on the "systemprompt" field.
+func SystempromptLTE(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldLTE(FieldSystemprompt, v))
+}
+
+// SystempromptContains applies the Contains predicate on the "systemprompt" field.
+func SystempromptContains(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldContains(FieldSystemprompt, v))
+}
+
+// SystempromptHasPrefix applies the HasPrefix predicate on the "systemprompt" field.
+func SystempromptHasPrefix(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldHasPrefix(FieldSystemprompt, v))
+}
+
+// SystempromptHasSuffix applies the HasSuffix predicate on the "systemprompt" field.
+func SystempromptHasSuffix(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldHasSuffix(FieldSystemprompt, v))
+}
+
+// SystempromptIsNil applies the IsNil predicate on the "systemprompt" field.
+func SystempromptIsNil() predicate.Scenario {
+	return predicate.Scenario(sql.FieldIsNull(FieldSystemprompt))
+}
+
+// SystempromptNotNil applies the NotNil predicate on the "systemprompt" field.
+func SystempromptNotNil() predicate.Scenario {
+	return predicate.Scenario(sql.FieldNotNull(FieldSystemprompt))
+}
+
+// SystempromptEqualFold applies the EqualFold predicate on the "systemprompt" field.
+func SystempromptEqualFold(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldEqualFold(FieldSystemprompt, v))
+}
+
+// SystempromptContainsFold applies the ContainsFold predicate on the "systemprompt" field.
+func SystempromptContainsFold(v string) predicate.Scenario {
+	return predicate.Scenario(sql.FieldContainsFold(FieldSystemprompt, v))
 }
 
 // DateEQ applies the EQ predicate on the "date" field.

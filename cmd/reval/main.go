@@ -28,14 +28,14 @@ func main() {
 	})
 
 	//register folder for static web deployment
-	r.Static("/ui/", config.Current.Gin_Web_Path)
+	r.Static(config.Current.Gin_Web_BaseUrl, config.Current.Gin_Web_Path)
 
 	//setup CORS
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, config.Current.Gin_Cors_AdditionalAllowedHeaders...)
 	corsConfig.AllowAllOrigins = config.Current.Gin_Cors_AllowAllOrigins
 	r.Use(cors.New(corsConfig))
-	r.Use(oidc.OidcAuthMiddleware(config.Current.Oidc_Authority, config.Current.Oidc_Audience))
+	r.Use(oidc.OidcAuthMiddleware(config.Current.Oidc_Authority, config.Current.Oidc_Audience, config.Current.Gin_Api_BaseUrl))
 
 	//register HTTP handlers for evaluatio api
 	si := new(controller.EvaluationApiServerInterface)

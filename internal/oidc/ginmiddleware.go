@@ -12,11 +12,14 @@ import (
 
 var relyingParty rp.RelyingParty
 var userInfoCache map[string]*oidc.UserInfo
+var authRoutes []string
 
 const OidcUserClaimsKey = "OidcUserClaims"
 const OidcUserIsAuthenticatedKey = "OidcUserIsAuthenticated"
 
-func OidcAuthMiddleware(authority, audience string) gin.HandlerFunc {
+func OidcAuthMiddleware(authority, audience string, routes ...string) gin.HandlerFunc {
+
+	authRoutes = routes
 	userInfoCache = map[string]*oidc.UserInfo{}
 
 	_, err := rp.Discover(authority, http.DefaultClient)
@@ -33,6 +36,20 @@ func OidcAuthMiddleware(authority, audience string) gin.HandlerFunc {
 
 		c.Set(OidcUserIsAuthenticatedKey, false)
 		c.Set(OidcUserClaimsKey, new(map[string]any))
+
+		currentRoute := c.Request.URL.Path
+		shouldHandle := false
+		//check if path should be handled
+		for _, authRoute := range authRoutes {
+			if strings.HasPrefix(currentRoute, authRoute) {
+				shouldHandle = true
+				break
+			}
+		}
+
+		if !shouldHandle {
+			return
+		}
 
 		ok, token := checkTokenType(c)
 		if !ok {

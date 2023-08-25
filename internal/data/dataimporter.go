@@ -39,51 +39,77 @@ func ImportData() error {
 	return err
 }
 
-// TODO fix
-func createUser(ctx context.Context, client *ent.Client) error {
-	u, err := client.User.Create().
-		SetName("user").
-		Save(ctx)
-
-	var _ = u
-
-	return err
-}
-
 func importFromFile(ctx context.Context, client *ent.Client, filename string) {
-	evals := LoadDataFromFile(filename)
-	fmt.Printf("start import %d records...\n", len(*evals))
+	umbrella := LoadDataFromFile(filename)
+	header := umbrella.Header
+	entries := umbrella.Entries
 
-	now := time.Now()
-	scDescription := fmt.Sprintf("This scenario with %d evaluations was imported from the file '%s' at '%s'", len(*evals), filename, now.String())
+	if header == nil {
+		fmt.Print("No header found... skip import\n", len(*entries))
+		return
+	}
+	printHeader(header)
+
+	if entries == nil {
+		fmt.Print("No entries found... skip import\n", len(*entries))
+		return
+	}
+
+	fmt.Printf("start import %d records...\n", len(*entries))
+
+	name := header.Name
+	if stringIsNilOrEmpty(name) {
+		name = &filename
+	}
 
 	scenario, err := client.Scenario.Create().
 		SetNillableExternalId(nil).
-		SetName(filename).
-		SetDesctiption(scDescription).
-		SetDate(time.Now()).
+		SetName(*name).
+		SetNillableDescription(header.Description).
+		SetNillableDate(tryParseTime(*header.Date)).
+		SetNillableSystemprompt(header.SystemPrompt).
 		Save(ctx)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	for _, eval := range *evals {
+	for i, entry := range *entries {
+
+		if stringIsNilOrEmpty(entry.Id) {
+			fmt.Printf("EntryId is not given, skip Entry with index: %d\n", i)
+			continue
+		}
 
 		//try to load existing request by external id
-		req, err := client.Request.Query().
-			Where(request.ExternalId(eval.Id)).
+		req, err := client.Request.
+			Query().
+			Where(request.ExternalId(*entry.Id)).
 			First(ctx)
 
 		//in case of error create new record
 		if err != nil {
 
-			req, err = client.Request.Create().
-				SetExternalId(eval.Id).
-				SetFrom(eval.Request.From).
-				SetBody(eval.Request.Body).
-				SetNillableDate(tryParseTime(eval.Request.Date)).
+			if stringIsNilOrEmpty(entry.Request.Body) {
+				fmt.Printf("Request.Body is not given, skip Entry with index %d and Id %s\n", i, *entry.Id)
+				continue
+			}
+
+			req, err = client.Request.
+				Create().
+				SetExternalId(*entry.Id).
+				SetBody(*entry.Request.Body).
+				SetNillableFrom(entry.Request.From).
+				SetNillableSubject(entry.Request.Subject).
+				SetNillableDate(tryParseTime(*entry.Request.Date)).
 				Save(ctx)
+
+			if err != nil {
+				fmt.Printf("Error while inserting new Request for Entry with index %d and Id %s\n", i, *entry.Id)
+				fmt.Println(err)
+			}
+
 		}
 
 		if err != nil {
@@ -92,54 +118,58 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 
 		//Create response
 		res, err := client.Response.Create().
-			SetFrom(eval.Response.From).
-			SetBody(eval.Response.Body).
-			SetScenarioId(scenario.ID).
-			SetRequestId(req.ID).
-			SetNillableDate(tryParseTime(eval.Response.Date)).
+			SetRequestID(req.ID).
+			SetScenarioID(scenario.ID).
+			SetBody(*entry.Response.Body).
+			SetNillableFrom(entry.Response.From).
+			SetNillableSubject(entry.Response.Subject).
+			SetNillableDate(tryParseTime(*entry.Response.Date)).
 			Save(ctx)
 
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		//try to get user by external Id
-		user, err := persistence.GetUserByExternalId(ctx, eval.Rating.From)
-		var userId uuid.UUID
+		//only import rating if available
+		if entry.Rating != nil {
 
-		//if user does not exists try to create one
-		//in case of error create new record
-		if err != nil {
+			//try to get user by external Id
+			user, err := persistence.GetUserByExternalId(ctx, *entry.Rating.From)
+			var userId uuid.UUID
 
-			userId, err = persistence.UpsertUser(ctx, eval.Rating.From, eval.Rating.From, "LLM")
+			//if user does not exists try to create one
+			//in case of error create new record
+			if err != nil {
+
+				userId, err = persistence.UpsertUser(ctx, *entry.Rating.From, *entry.Rating.From, "LLM")
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				userId = user.ID
+			}
+
 			if err != nil {
 				fmt.Println(err)
 			}
-		} else {
-			userId = user.ID
+
+			//create evaluation
+			err = client.Evaluation.Create().
+				SetEvaluationResult(mapEvaluationResult(*entry.Rating.Value)).
+				SetResponseId(res.ID).
+				SetNillableDate(tryParseTime(*entry.Rating.Date)).
+				SetUserId(userId).
+				Exec(ctx)
+
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		//create evaluation
-		err = client.Evaluation.Create().
-			SetEvaluationResult(mapEvaluationResult(eval.Rating.Value)).
-			SetResponseId(res.ID).
-			SetNillableDate(tryParseTime(eval.Rating.Date)).
-			SetUserId(userId).
-			Exec(ctx)
-
-		if err != nil {
-			fmt.Println(err)
-		}
-
 	}
 	fmt.Println("Done...")
 }
 
-func LoadDataFromFile(path string) *[]Evaluations {
+func LoadDataFromFile(path string) Umbrella {
 	// Open jsonFile from dataPath
 	fmt.Println("Open data json from: " + path)
 	jsonFile, err := os.Open(path)
@@ -154,13 +184,20 @@ func LoadDataFromFile(path string) *[]Evaluations {
 	// read our opened jsonFile as a byte array.
 	bytes, _ := io.ReadAll(jsonFile)
 
-	var evaluations []Evaluations
+	var umbrella Umbrella
 
 	// we unmarshal our byteArray which contains our
-	// jsonFile's content into 'users' which we defined above
-	json.Unmarshal(bytes, &evaluations)
+	json.Unmarshal(bytes, &umbrella)
 
-	return &evaluations
+	return umbrella
+}
+
+func printHeader(header *Header) {
+	fmt.Printf("File header:\nName: %s\nDate: %s\nDescription: %s\n", *header.Name, *header.Date, *header.Description)
+
+	if header.SystemPrompt != nil || *header.SystemPrompt != "" {
+		fmt.Printf("System Prompt:\n%s\n\n", *header.SystemPrompt)
+	}
 }
 
 func mapEvaluationResult(str string) string {
@@ -172,7 +209,7 @@ func mapEvaluationResult(str string) string {
 		return string(evaluationapi.Negative)
 
 	}
-	return string(evaluationapi.Neutral)
+	return string(evaluationapi.Negative)
 }
 
 func tryParseTime(str string) *time.Time {
@@ -184,4 +221,11 @@ func tryParseTime(str string) *time.Time {
 	}
 
 	return &time
+}
+
+func stringIsNilOrEmpty(str *string) bool {
+	if str == nil || *str == "" {
+		return true
+	}
+	return false
 }

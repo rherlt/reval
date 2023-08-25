@@ -88,7 +88,8 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString},
 		{Name: "external_id", Type: field.TypeString, Nullable: true},
-		{Name: "desctiption", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "systemprompt", Type: field.TypeString, Nullable: true},
 		{Name: "date", Type: field.TypeTime, Nullable: true},
 	}
 	// ScenariosTable holds the schema information for the "scenarios" table.

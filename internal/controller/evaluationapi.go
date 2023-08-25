@@ -43,7 +43,7 @@ func (si EvaluationApiServerInterface) GetStatistics(c *gin.Context, params eval
 		statScenario := evaluationapi.ScenarioStatistics{
 			Id:                 scenario.ID.String(),
 			Name:               scenario.Name,
-			Description:        &scenario.Desctiption,
+			Description:        &scenario.Description,
 			ProgressStatistics: persistence.ProgressStatistics(ctx, scenario.ID, totalCount),
 			ResultStatistics:   resultStatistics,
 			RatingScore:        ratingScore,
