@@ -1,0 +1,41 @@
+<mat-list *ngIf="ratings != undefined" class="inline-list">
+    <mat-list-item *ngFor="let rating of ratings.scenarios" style="height: 100%;">
+        <mat-card class="scenario-card">
+            <mat-card-header>
+                <mat-card-title>
+                    {{rating.name}}
+                </mat-card-title>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <div class="scenario-details">
+                <p>{{rating.description}}</p>
+                <p>Questions: {{rating.totalResponseCount}}</p>
+                <ngx-charts-pie-chart
+                    [view]="view"
+                    [customColors]="progressColors"
+                    [results]="rating.progressStatistics"
+                    [gradient]="gradient"
+                    [legend]="showLegend"
+                    [labels]="showLabels"
+                    [doughnut]="isDoughnut"
+                    (select)="onSelect($event)"
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"
+                />
+                <ngx-charts-pie-chart
+                    [view]="view"
+                    [customColors]="resultColors"
+                    [results]="rating.resultStatistics"
+                    [gradient]="gradient"
+                    [legend]="showLegend"
+                    [labels]="showLabels"
+                    [doughnut]="isDoughnut"
+                    (select)="onSelect($event)"
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"
+                />
+                <strong>Rating Score: {{rating.ratingScore.value}}</strong>
+            </div>
+        </mat-card>
+    </mat-list-item>
+</mat-list>
