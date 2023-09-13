@@ -126,7 +126,8 @@ func GetNextResponse(ctx context.Context) (*ent.Response, error) {
 
 	minEvaluationCount := v[0].EvaluationCount
 
-	err = client.Debug().Response.
+	//get all responseIds with number of evaluations equal to minEvaluationCount
+	err = client.Response.
 		Query().
 		Select(response.FieldID).
 		Aggregate(func(s *sql.Selector) string {
@@ -145,9 +146,10 @@ func GetNextResponse(ctx context.Context) (*ent.Response, error) {
 		}).
 		Scan(ctx, &v)
 
-	//generate random between 0 and 9
+	//generate random between 0 and number of responses with minEvaluationCount
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(v))
 
+	//load random response by its id
 	response, err := client.Response.Get(ctx, v[rnd].Id)
 
 	if err != nil {
