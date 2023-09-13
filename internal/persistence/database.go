@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rherlt/reval/ent"
@@ -103,12 +105,50 @@ func GetNextResponse(ctx context.Context) (*ent.Response, error) {
 		return nil, fmt.Errorf("failed to get database client: %w", err)
 	}
 
-	response, err := client.Response.Query().
-		Order(
-			// responses without evaluations are sorted first.
-			response.ByEvaluationsCount(),
-		).
-		First(ctx)
+	var v []struct {
+		Id              uuid.UUID `json:"id"`
+		EvaluationCount int       `json:"evalCount"`
+	}
+
+	//get min evaluation count of all responses... smallest possible result is 0
+	err = client.Response.
+		Query().
+		Limit(1).
+		Aggregate(func(s *sql.Selector) string {
+			joinT := sql.Table(response.EvaluationsTable)
+			s.LeftJoin(joinT).
+				On(s.C(response.FieldID), joinT.C(response.EvaluationsColumn))
+			s.GroupBy(s.C(response.FieldID), joinT.C(response.EvaluationsColumn))
+			s.OrderBy("evalCount")
+			return sql.As(sql.Count(joinT.C(response.EvaluationsColumn)), "evalCount")
+		}).
+		Scan(ctx, &v)
+
+	minEvaluationCount := v[0].EvaluationCount
+
+	err = client.Debug().Response.
+		Query().
+		Select(response.FieldID).
+		Aggregate(func(s *sql.Selector) string {
+			joinT := sql.Table(response.EvaluationsTable)
+
+			s.LeftJoin(joinT).
+				On(s.C(response.FieldID), joinT.C(response.EvaluationsColumn))
+			s.GroupBy(s.C(response.FieldID), joinT.C(response.EvaluationsColumn))
+			s.Having(
+				sql.EQ(
+					"evalCount",
+					minEvaluationCount),
+			)
+			s.OrderBy("evalCount")
+			return sql.As(sql.Count(joinT.C(response.EvaluationsColumn)), "evalCount")
+		}).
+		Scan(ctx, &v)
+
+	//generate random between 0 and 9
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(v))
+
+	response, err := client.Response.Get(ctx, v[rnd].Id)
 
 	if err != nil {
 		fmt.Println(err)
