@@ -57,6 +57,7 @@ ENV GIN_MODE=release
 
 EXPOSE 8080
 
-USER nonroot:nonroot
+# causes file permission issues under ubutu, but was working on windows an macos
+# USER nonroot:nonroot
 
 ENTRYPOINT ["./reval"]

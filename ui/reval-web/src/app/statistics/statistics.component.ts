@@ -6,8 +6,8 @@ import { StatisticsService } from 'src/openapi-client/evaluationapi';
 
 @Component({
   selector: 'app-list',
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.css']
+  templateUrl: './statistics.component.html',
+  styleUrls: ['./statistics.component.css']
 })
 export class ListComponent {
   public ratings: GetStatisticsResponse | undefined;

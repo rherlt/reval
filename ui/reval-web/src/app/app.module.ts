@@ -15,9 +15,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { EvaluationComponent } from './evaluation/evaluation.component';
 import { AuthConfigModule } from './auth/auth-config.module';
 import { UserprofileComponent } from './userprofile/userprofile.component';
-import { ListComponent } from './list/list.component';
+import { ListComponent } from './statistics/statistics.component';
 import { MatListModule } from '@angular/material/list';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { Configuration } from 'src/openapi-client/evaluationapi';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,10 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    ApiModule,
+    ApiModule.forRoot(() => {
+      return new Configuration({
+        basePath: 'https://reval.th-b.com/api',
+      })}),
     MatIconModule,
     MatDividerModule,
     MatButtonModule,
