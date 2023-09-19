@@ -77,12 +77,18 @@ func GetResultStatisticsByScenarioId(ctx context.Context, scenarioId uuid.UUID) 
 	return res
 }
 
-func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) float64 {
+func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) evaluationapi.RatingScore {
+
+	score := evaluationapi.RatingScore{
+		Min:   0,
+		Value: 0,
+		Max:   1,
+	}
 
 	client, err := GetClient()
 	if err != nil {
 		fmt.Errorf("Failed to get database client: %w", err)
-		return 0.0
+		return score
 	}
 
 	// Get all responses with the specified scenarioId
@@ -92,7 +98,7 @@ func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) float64
 
 	if err != nil {
 		fmt.Errorf("Failed to get responses from database: %w", err)
-		return 0.0
+		return score
 	}
 
 	allResponses := len(responses)
@@ -153,5 +159,7 @@ func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) float64
 		agreement = matchingEvaluations / float64(allResponses)
 	}
 
-	return agreement
+	score.Value = float32(agreement)
+
+	return score
 }
