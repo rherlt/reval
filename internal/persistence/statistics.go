@@ -76,3 +76,82 @@ func GetResultStatisticsByScenarioId(ctx context.Context, scenarioId uuid.UUID) 
 
 	return res
 }
+
+func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) float64 {
+
+	client, err := GetClient()
+	if err != nil {
+		fmt.Errorf("Failed to get database client: %w", err)
+		return 0.0
+	}
+
+	// Get all responses with the specified scenarioId
+	responses, err := client.Response.Query().
+		Where(response.ScenarioId(scenarioId)).
+		All(ctx)
+
+	if err != nil {
+		fmt.Errorf("Failed to get responses from database: %w", err)
+		return 0.0
+	}
+
+	allResponses := len(responses)
+	matchingEvaluations := 0.0
+
+	for _, response := range responses {
+		evaluations, errr := client.Evaluation.Query().
+			Where(evaluation.ResponseId(response.ID)).
+			WithUser().
+			All(ctx)
+
+		if errr != nil {
+			fmt.Errorf("Failed to get evaluations from database: %w", errr)
+			continue
+		}
+
+		userPositive := 0
+		userNegative := 0
+		var chatGPTEval string
+		var userEval string
+
+		for _, evaluation := range evaluations {
+			if evaluation.Edges.User.Name == "gpt3.5-turbo" {
+				chatGPTEval = evaluation.EvaluationResult
+			} else {
+				if evaluation.EvaluationResult == "positve" {
+					userPositive++
+				} else if evaluation.EvaluationResult == "negative" {
+					userNegative++
+				}
+			}
+		}
+
+		if (userPositive+userNegative == 0) || chatGPTEval == "" {
+			allResponses--
+			continue
+		}
+
+		if userPositive > userNegative {
+			userEval = "positive"
+		} else if userNegative < userPositive {
+			userEval = "negative"
+		} else {
+			//userEval == "positive"
+			userEval = "negative"
+		}
+
+		if userEval == chatGPTEval {
+			matchingEvaluations++
+		}
+
+	}
+
+	var agreement float64
+	if allResponses == 0 {
+		agreement = 0.0
+	} else {
+		agreement = matchingEvaluations / float64(allResponses)
+	}
+
+	return agreement
+}
