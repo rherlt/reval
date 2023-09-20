@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent"
 	"github.com/rherlt/reval/ent/request"
+	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
 	"github.com/rherlt/reval/internal/persistence"
@@ -57,22 +59,33 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 
 	fmt.Printf("start import %d records...\n", len(*entries))
 
-	name := header.Name
+	name := header.Model
 	if stringIsNilOrEmpty(name) {
 		name = &filename
 	}
 
-	scenario, err := client.Scenario.Create().
-		SetNillableExternalId(nil).
-		SetName(*name).
-		SetNillableDescription(header.Description).
-		SetNillableDate(tryParseTime(*header.Date)).
-		SetNillableSystemprompt(header.SystemPrompt).
-		Save(ctx)
+	//try to load existing request by external id
+	sc, err := client.Scenario.
+		Query().
+		Where(scenario.ExternalId(*header.Id)).
+		First(ctx)
 
+	// in case of error create new record
 	if err != nil {
-		fmt.Println(err)
-		return
+
+		sc, err = client.Scenario.Create().
+			SetNillableExternalId(nil).
+			SetName(*name).
+			SetDescription(getDescriptionByHeader(header)).
+			SetNillableDate(tryParseTime(*header.Date)).
+			SetNillableSystemprompt(header.SystemPrompt).
+			Save(ctx)
+
+		if err != nil {
+			fmt.Printf("Error while inserting new Scenario for Entry with Id %s\n", *header.Id)
+			fmt.Println(err)
+		}
+
 	}
 
 	for i, entry := range *entries {
@@ -100,9 +113,9 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 				Create().
 				SetExternalId(*entry.Id).
 				SetBody(*entry.Request.Body).
-				SetNillableFrom(entry.Request.From).
+				SetNillableFrom(header.Model).
 				SetNillableSubject(entry.Request.Subject).
-				SetNillableDate(tryParseTime(*entry.Request.Date)).
+				SetNillableDate(tryParseTime(*header.Date)).
 				Save(ctx)
 
 			if err != nil {
@@ -116,18 +129,29 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 			fmt.Println(err)
 		}
 
-		//Create response
-		res, err := client.Response.Create().
-			SetRequestID(req.ID).
-			SetScenarioID(scenario.ID).
-			SetBody(*entry.Response.Body).
-			SetNillableFrom(entry.Response.From).
-			SetNillableSubject(entry.Response.Subject).
-			SetNillableDate(tryParseTime(*entry.Response.Date)).
-			Save(ctx)
+		//try to load existing respopnses by from and requests external id
+		res, err := client.Request.
+			Query().
+			Where(request.ExternalIdEQ(*entry.Id)).
+			QueryResponses().
+			Where(response.HasScenarioWith(scenario.ExternalId(*header.Id))).
+			First(ctx)
 
+		//in case of error create new record
 		if err != nil {
-			fmt.Println(err)
+			//Create response
+			res, err = client.Response.Create().
+				SetRequestID(req.ID).
+				SetScenarioID(sc.ID).
+				SetBody(*entry.Response.Body).
+				SetNillableFrom(header.Model).
+				SetNillableSubject(entry.Response.Subject).
+				SetNillableDate(tryParseTime(*header.Date)).
+				Save(ctx)
+
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		//only import rating if available
@@ -192,8 +216,14 @@ func LoadDataFromFile(path string) Umbrella {
 	return umbrella
 }
 
+func getDescriptionByHeader(header *Header) string {
+
+	description := fmt.Sprintf("MaxTokens: %d, Temperature: %d", header.Hyperparams.MaxTokens, header.Hyperparams.Temperature)
+	return description
+}
+
 func printHeader(header *Header) {
-	fmt.Printf("File header:\nName: %s\nDate: %s\nDescription: %s\n", *header.Name, *header.Date, *header.Description)
+	fmt.Printf("File header:\nName: %s\nDate: %s\nDescription: %s\n", *header.Model, *header.Date, getDescriptionByHeader(header))
 
 	if header.SystemPrompt != nil || *header.SystemPrompt != "" {
 		fmt.Printf("System Prompt:\n%s\n\n", *header.SystemPrompt)
