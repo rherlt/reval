@@ -124,7 +124,7 @@ func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) evaluat
 			if evaluation.Edges.User.Name == "gpt3.5-turbo" {
 				chatGPTEval = evaluation.EvaluationResult
 			} else {
-				if evaluation.EvaluationResult == "positve" {
+				if evaluation.EvaluationResult == "positive" {
 					userPositive++
 				} else if evaluation.EvaluationResult == "negative" {
 					userNegative++
