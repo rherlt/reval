@@ -129,15 +129,8 @@ func importFromFile(ctx context.Context, client *ent.Client, filename string) {
 			fmt.Println(err)
 		}
 
-		/*
-			 SELECT resp.id, req.external_id, resp.[from]
-			FROM responses resp
-			JOIN requests req ON req.Id = resp.request_id
-			WHERE req.external_id = '27680bd59f631e3bc80a1d7ba8653d0ffe039a31' AND
-			 resp.[from] = 'Llama-2-13b-chat-hf'
-		*/
 		//try to load existing respopnses by from and requests external id
-		res, err := client.Debug().Request.
+		res, err := client.Request.
 			Query().
 			Where(request.ExternalIdEQ(*entry.Id)).
 			QueryResponses().
