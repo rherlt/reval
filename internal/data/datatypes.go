@@ -6,10 +6,16 @@ type Umbrella struct {
 }
 
 type Header struct {
-	Name         *string `json:"name,omitempty"`
-	Description  *string `json:"description,omitempty"`
-	SystemPrompt *string `json:"systemPrompt,omitempty"`
-	Date         *string `json:"date,omitempty"`
+	Id           *string      `json:"id,omitempty"`
+	Model        *string      `json:"model,omitempty"`
+	Hyperparams  *Hyperparams `json:"hyperparams,omitempty"`
+	SystemPrompt *string      `json:"systemPrompt,omitempty"`
+	Date         *string      `json:"date,omitempty"`
+}
+
+type Hyperparams struct {
+	Temperature *int `json:"temperature,omitempty"`
+	MaxTokens   *int `json:"max_tokens,omitempty"`
 }
 
 type Entry struct {
@@ -27,7 +33,5 @@ type Rating struct {
 
 type Message struct {
 	Body    *string `json:"body,omitempty"`
-	Date    *string `json:"date,omitempty"`
-	From    *string `json:"from,omitempty"`
 	Subject *string `json:"subject,omitempty"`
 }
