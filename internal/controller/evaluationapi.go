@@ -9,7 +9,6 @@ import (
 	"github.com/rherlt/reval/internal/config"
 	"github.com/rherlt/reval/internal/oidc"
 	"github.com/rherlt/reval/internal/persistence"
-	"github.com/rherlt/reval/internal/statistics"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +36,8 @@ func (si EvaluationApiServerInterface) GetStatistics(c *gin.Context, params eval
 	for _, scenario := range scenarios {
 
 		resultStatistics := persistence.GetResultStatisticsByScenarioId(ctx, scenario.ID)
-		ratingScore := statistics.CalculateRatingScore(&resultStatistics)
+		ratingScore := persistence.GetAgreementByScenarioId(ctx, scenario.ID)
+		//ratingScore := statistics.CalculateRatingScore(&resultStatistics)
 		totalCount := persistence.GetTotalResponseCountByScenarioId(ctx, scenario.ID)
 
 		statScenario := evaluationapi.ScenarioStatistics{
