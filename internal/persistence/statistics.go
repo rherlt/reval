@@ -76,3 +76,92 @@ func GetResultStatisticsByScenarioId(ctx context.Context, scenarioId uuid.UUID) 
 
 	return res
 }
+
+func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) evaluationapi.RatingScore {
+
+	gptUserName := "gpt-3.5-turbo"
+
+	score := evaluationapi.RatingScore{
+		Min:   0,
+		Value: 0,
+		Max:   1,
+	}
+
+	client, err := GetClient()
+	if err != nil {
+		fmt.Errorf("Failed to get database client: %w", err)
+		return score
+	}
+
+	// Get all responses with the specified scenarioId
+	responses, err := client.Response.Query().
+		Where(response.ScenarioId(scenarioId)).
+		All(ctx)
+
+	if err != nil {
+		fmt.Errorf("Failed to get responses from database: %w", err)
+		return score
+	}
+
+	allResponses := len(responses)
+	matchingEvaluations := 0.0
+
+	for _, response := range responses {
+		evaluations, errr := client.Evaluation.Query().
+			Where(evaluation.ResponseId(response.ID)).
+			WithUser().
+			All(ctx)
+
+		if errr != nil {
+			fmt.Errorf("Failed to get evaluations from database: %w", errr)
+			continue
+		}
+
+		userPositive := 0
+		userNegative := 0
+		var chatGPTEval string
+		var userEval string
+
+		for _, evaluation := range evaluations {
+			if evaluation.Edges.User.Name == gptUserName {
+				chatGPTEval = evaluation.EvaluationResult
+			} else {
+				if evaluation.EvaluationResult == "positive" {
+					userPositive++
+				} else if evaluation.EvaluationResult == "negative" {
+					userNegative++
+				}
+			}
+		}
+
+		if (userPositive+userNegative == 0) || chatGPTEval == "" {
+			allResponses--
+			continue
+		}
+
+		if userPositive > userNegative {
+			userEval = "positive"
+		} else if userNegative < userPositive {
+			userEval = "negative"
+		} else {
+			//userEval == "positive"
+			userEval = "negative"
+		}
+
+		if userEval == chatGPTEval {
+			matchingEvaluations++
+		}
+
+	}
+
+	var agreement float64
+	if allResponses == 0 {
+		agreement = 0.0
+	} else {
+		agreement = matchingEvaluations / float64(allResponses)
+	}
+
+	score.Value = float32(agreement)
+
+	return score
+}
