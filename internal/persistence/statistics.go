@@ -79,6 +79,8 @@ func GetResultStatisticsByScenarioId(ctx context.Context, scenarioId uuid.UUID) 
 
 func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) evaluationapi.RatingScore {
 
+	gptUserName := "gpt-3.5-turbo"
+
 	score := evaluationapi.RatingScore{
 		Min:   0,
 		Value: 0,
@@ -121,7 +123,7 @@ func GetAgreementByScenarioId(ctx context.Context, scenarioId uuid.UUID) evaluat
 		var userEval string
 
 		for _, evaluation := range evaluations {
-			if evaluation.Edges.User.Name == "gpt3.5-turbo" {
+			if evaluation.Edges.User.Name == gptUserName {
 				chatGPTEval = evaluation.EvaluationResult
 			} else {
 				if evaluation.EvaluationResult == "positive" {
