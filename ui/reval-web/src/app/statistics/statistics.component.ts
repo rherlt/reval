@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
+import { MatListModule } from '@angular/material/list';
+//import { ratings } from './exampleRating';
 import { GetStatisticsResponse } from 'src/openapi-client/evaluationapi';
 import { StatisticsService } from 'src/openapi-client/evaluationapi';
 
 @Component({
-  selector: 'app-statistics',
+  selector: 'app-list',
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.css']
 })
-export class StatisticsComponent {
+export class ListComponent {
   public ratings: GetStatisticsResponse | undefined;
   view: [number, number] = [300, 250];
 

@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { StatisticsComponent } from './statistics/statistics.component';
+import { ListComponent } from './statistics/statistics.component';
 import { EvaluationComponent } from './evaluation/evaluation.component';
 
 const routes: Routes = [
   { path: '', component: EvaluationComponent },
-  { path: 'statistics', component: StatisticsComponent }
+  { path: 'list', component: ListComponent }
 ];
 
 @NgModule({
