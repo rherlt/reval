@@ -327,17 +327,6 @@ func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount in
 		Count int `json:"count"`
 	}
 
-	/* 	err = client.Evaluation.
-	Query().
-	Where(
-		evaluation.And(
-			evaluation.HasUserWith(user.Type(config.Current.Oidc_Authority)),
-			evaluation.HasResponseWith(response.ScenarioId(scenarioId)),
-		),
-	).
-	Aggregate(ent.Count()).
-	Scan(ctx, &v) */
-
 	err = client.Debug().Response.
 		Query().
 		Where(
