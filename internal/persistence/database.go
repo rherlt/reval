@@ -16,6 +16,7 @@ import (
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
+	"github.com/rherlt/reval/ent/scenario"
 	"github.com/rherlt/reval/ent/user"
 	"github.com/rherlt/reval/internal/api/evaluationapi"
 	"github.com/rherlt/reval/internal/config"
@@ -326,16 +327,18 @@ func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount in
 		Count int `json:"count"`
 	}
 
-	err = client.Evaluation.
+	err = client.Debug().Response.
 		Query().
 		Where(
-			evaluation.And(
-				evaluation.HasUserWith(user.Type(config.Current.Oidc_Authority)),
-				evaluation.HasResponseWith(response.ScenarioId(scenarioId)),
-			),
-		).
+			response.HasScenarioWith(scenario.ID(scenarioId)),
+			response.HasEvaluationsWith(evaluation.HasUserWith(user.Type(config.Current.Oidc_Authority)))).
 		Aggregate(ent.Count()).
 		Scan(ctx, &v)
+
+	if err != nil {
+		fmt.Errorf("failed to retrieve progress from database: %w", err)
+		return []evaluationapi.NameValuePair{}
+	}
 
 	var currentCount int32 = int32(v[0].Count)
 
