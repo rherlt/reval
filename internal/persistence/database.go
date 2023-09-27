@@ -327,7 +327,7 @@ func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount in
 		Count int `json:"count"`
 	}
 
-	err = client.Debug().Response.
+	err = client.Response.
 		Query().
 		Where(
 			response.HasScenarioWith(scenario.ID(scenarioId)),
