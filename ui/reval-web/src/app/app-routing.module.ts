@@ -6,7 +6,7 @@ import { EvaluationComponent } from './evaluation/evaluation.component';
 
 const routes: Routes = [
   { path: '', component: EvaluationComponent },
-  { path: 'scenario', component: StatisticsComponent }
+  { path: 'statistcs', component: StatisticsComponent }
 ];
 
 @NgModule({
