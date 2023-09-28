@@ -1,19 +1,19 @@
-<mat-list *ngIf="ratings != undefined" class="inline-list">
-    <mat-list-item *ngFor="let rating of ratings.scenarios" style="height: 100%;">
+<mat-list *ngIf="statistics != undefined" class="inline-list">
+    <mat-list-item *ngFor="let statistic of statistics.scenarios" style="height: 100%;">
         <mat-card class="scenario-card">
             <mat-card-header>
                 <mat-card-title>
-                    {{rating.name}}
+                    {{statistic.name}}
                 </mat-card-title>
             </mat-card-header>
             <mat-divider></mat-divider>
             <div class="scenario-details">
-                <p>{{rating.description}}</p>
-                <p>Questions: {{rating.totalResponseCount}}</p>
+                <p>{{statistic.description}}</p>
+                <p>Responses: {{statistic.totalResponseCount}}</p>
                 <ngx-charts-pie-chart
                     [view]="view"
                     [customColors]="progressColors"
-                    [results]="rating.progressStatistics"
+                    [results]="statistic.progressStatistics"
                     [gradient]="gradient"
                     [legend]="showLegend"
                     [labels]="showLabels"
@@ -22,10 +22,10 @@
                     (activate)="onActivate($event)"
                     (deactivate)="onDeactivate($event)"
                 />
-                <ngx-charts-pie-chart
+                <ngx-charts-pie-chart *ngIf="statistic.resultStatistics.length != 0; else noEvals"
                     [view]="view"
                     [customColors]="resultColors"
-                    [results]="rating.resultStatistics"
+                    [results]="statistic.resultStatistics"
                     [gradient]="gradient"
                     [legend]="showLegend"
                     [labels]="showLabels"
@@ -34,7 +34,12 @@
                     (activate)="onActivate($event)"
                     (deactivate)="onDeactivate($event)"
                 />
-                <strong>Rating Score: {{rating.ratingScore.value}}</strong>
+                <ng-template #noEvals>
+                    <div>
+                        No evaluations, yet
+                    </div>
+                </ng-template>
+                <strong>Consensus with ChatGPT: {{statistic.ratingScore.value * 100}}%</strong>
             </div>
         </mat-card>
     </mat-list-item>
