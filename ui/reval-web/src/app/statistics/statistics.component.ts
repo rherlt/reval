@@ -8,8 +8,8 @@ import { StatisticsService } from 'src/openapi-client/evaluationapi';
   styleUrls: ['./statistics.component.css']
 })
 export class StatisticsComponent {
-  public ratings: GetStatisticsResponse | undefined;
-  view: [number, number] = [300, 250];
+  public statistics: GetStatisticsResponse | undefined;
+  view: [number, number] = [300, 200];
 
   gradient: boolean = false;
   showLegend: boolean = false;
@@ -34,7 +34,7 @@ export class StatisticsComponent {
 
   ngOnInit() {
     this.statisticService.getStatistics().subscribe(e => {
-      this.ratings = e
+      this.statistics = e
      Object.assign(this, { e });
     })
     
