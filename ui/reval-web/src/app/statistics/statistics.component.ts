@@ -8,12 +8,12 @@ import { StatisticsService } from 'src/openapi-client/evaluationapi';
   styleUrls: ['./statistics.component.css']
 })
 export class StatisticsComponent {
-  public ratings: GetStatisticsResponse | undefined;
-  view: [number, number] = [300, 250];
+  public statistics: GetStatisticsResponse | undefined;
+  view: [number, number] = [120, 120];
 
   gradient: boolean = false;
   showLegend: boolean = false;
-  showLabels: boolean = true;
+  showLabels: boolean = false;
   isDoughnut: boolean = false;
 
   progressColors = 
@@ -34,21 +34,21 @@ export class StatisticsComponent {
 
   ngOnInit() {
     this.statisticService.getStatistics().subscribe(e => {
-      this.ratings = e
+      this.statistics = e
      Object.assign(this, { e });
     })
     
   }
 
   onSelect(data: any): void {
-    console.log('Item clicked', JSON.parse(JSON.stringify(data)));
+    //console.log('Item clicked', JSON.parse(JSON.stringify(data)));
   }
 
   onActivate(data: any): void {
-    console.log('Activate', JSON.parse(JSON.stringify(data)));
+    //console.log('Activate', JSON.parse(JSON.stringify(data)));
   }
 
   onDeactivate(data: any): void {
-    console.log('Deactivate', JSON.parse(JSON.stringify(data)));
+    //console.log('Deactivate', JSON.parse(JSON.stringify(data)));
   }
 }

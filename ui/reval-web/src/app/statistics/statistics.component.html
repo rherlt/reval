@@ -1,40 +1,54 @@
-<mat-list *ngIf="ratings != undefined" class="inline-list">
-    <mat-list-item *ngFor="let rating of ratings.scenarios" style="height: 100%;">
+<mat-list *ngIf="statistics != undefined" class="inline-list">
+    <mat-list-item *ngFor="let statistic of statistics.scenarios" style="height: 100%;">
         <mat-card class="scenario-card">
             <mat-card-header>
                 <mat-card-title>
-                    {{rating.name}}
+                    {{statistic.name}}
                 </mat-card-title>
             </mat-card-header>
             <mat-divider></mat-divider>
             <div class="scenario-details">
-                <p>{{rating.description}}</p>
-                <p>Questions: {{rating.totalResponseCount}}</p>
-                <ngx-charts-pie-chart
-                    [view]="view"
-                    [customColors]="progressColors"
-                    [results]="rating.progressStatistics"
-                    [gradient]="gradient"
-                    [legend]="showLegend"
-                    [labels]="showLabels"
-                    [doughnut]="isDoughnut"
-                    (select)="onSelect($event)"
-                    (activate)="onActivate($event)"
-                    (deactivate)="onDeactivate($event)"
-                />
-                <ngx-charts-pie-chart
-                    [view]="view"
-                    [customColors]="resultColors"
-                    [results]="rating.resultStatistics"
-                    [gradient]="gradient"
-                    [legend]="showLegend"
-                    [labels]="showLabels"
-                    [doughnut]="isDoughnut"
-                    (select)="onSelect($event)"
-                    (activate)="onActivate($event)"
-                    (deactivate)="onDeactivate($event)"
-                />
-                <strong>Rating Score: {{rating.ratingScore.value}}</strong>
+                <p>{{statistic.description}}</p>
+                <mat-divider/>
+                <p style="font-size: small;color: gray;">Responses: {{statistic.totalResponseCount}}</p>
+                <span  class="span-custom">
+                    <p>Progress:</p>
+                    <ngx-charts-pie-chart
+                        [view]="view"
+                        [customColors]="progressColors"
+                        [results]="statistic.progressStatistics"
+                        [gradient]="gradient"
+                        [legend]="showLegend"
+                        [labels]="showLabels"
+                        [doughnut]="isDoughnut"
+                        (select)="onSelect($event)"
+                        (activate)="onActivate($event)"
+                        (deactivate)="onDeactivate($event)"
+                    />
+                </span>
+                <span class="span-custom">
+                    <p>Results total:</p>
+                    <ngx-charts-pie-chart *ngIf="statistic.resultStatistics.length != 0; else noEvals"
+                        [view]="view"
+                        [customColors]="resultColors"
+                        [results]="statistic.resultStatistics"
+                        [gradient]="gradient"
+                        [legend]="showLegend"
+                        [labels]="showLabels"
+                        [doughnut]="isDoughnut"
+                        (select)="onSelect($event)"
+                        (activate)="onActivate($event)"
+                        (deactivate)="onDeactivate($event)"
+                    />
+                </span>
+                <ng-template #noEvals>
+                    <div>
+                        No evaluations, yet
+                    </div>
+                </ng-template>
+                <div>
+                    <strong>Consesus with ChatGPT: {{(statistic.ratingScore.value * 100).toFixed(1)}}%</strong>
+                </div>
             </div>
         </mat-card>
     </mat-list-item>
