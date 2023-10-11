@@ -9,37 +9,46 @@
             <mat-divider></mat-divider>
             <div class="scenario-details">
                 <p>{{statistic.description}}</p>
-                <p>Responses: {{statistic.totalResponseCount}}</p>
-                <ngx-charts-pie-chart
-                    [view]="view"
-                    [customColors]="progressColors"
-                    [results]="statistic.progressStatistics"
-                    [gradient]="gradient"
-                    [legend]="showLegend"
-                    [labels]="showLabels"
-                    [doughnut]="isDoughnut"
-                    (select)="onSelect($event)"
-                    (activate)="onActivate($event)"
-                    (deactivate)="onDeactivate($event)"
-                />
-                <ngx-charts-pie-chart *ngIf="statistic.resultStatistics.length != 0; else noEvals"
-                    [view]="view"
-                    [customColors]="resultColors"
-                    [results]="statistic.resultStatistics"
-                    [gradient]="gradient"
-                    [legend]="showLegend"
-                    [labels]="showLabels"
-                    [doughnut]="isDoughnut"
-                    (select)="onSelect($event)"
-                    (activate)="onActivate($event)"
-                    (deactivate)="onDeactivate($event)"
-                />
+                <mat-divider/>
+                <p style="font-size: small;color: gray;">Responses: {{statistic.totalResponseCount}}</p>
+                <span  class="span-custom">
+                    <p>Progress:</p>
+                    <ngx-charts-pie-chart
+                        [view]="view"
+                        [customColors]="progressColors"
+                        [results]="statistic.progressStatistics"
+                        [gradient]="gradient"
+                        [legend]="showLegend"
+                        [labels]="showLabels"
+                        [doughnut]="isDoughnut"
+                        (select)="onSelect($event)"
+                        (activate)="onActivate($event)"
+                        (deactivate)="onDeactivate($event)"
+                    />
+                </span>
+                <span class="span-custom">
+                    <p>Results total:</p>
+                    <ngx-charts-pie-chart *ngIf="statistic.resultStatistics.length != 0; else noEvals"
+                        [view]="view"
+                        [customColors]="resultColors"
+                        [results]="statistic.resultStatistics"
+                        [gradient]="gradient"
+                        [legend]="showLegend"
+                        [labels]="showLabels"
+                        [doughnut]="isDoughnut"
+                        (select)="onSelect($event)"
+                        (activate)="onActivate($event)"
+                        (deactivate)="onDeactivate($event)"
+                    />
+                </span>
                 <ng-template #noEvals>
                     <div>
                         No evaluations, yet
                     </div>
                 </ng-template>
-                <strong>Consensus with ChatGPT: {{statistic.ratingScore.value * 100}}%</strong>
+                <div>
+                    <strong>Consesus with ChatGPT: {{(statistic.ratingScore.value * 100).toFixed(1)}}%</strong>
+                </div>
             </div>
         </mat-card>
     </mat-list-item>

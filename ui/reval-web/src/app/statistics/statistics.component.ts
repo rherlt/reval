@@ -9,11 +9,11 @@ import { StatisticsService } from 'src/openapi-client/evaluationapi';
 })
 export class StatisticsComponent {
   public statistics: GetStatisticsResponse | undefined;
-  view: [number, number] = [300, 200];
+  view: [number, number] = [120, 120];
 
   gradient: boolean = false;
   showLegend: boolean = false;
-  showLabels: boolean = true;
+  showLabels: boolean = false;
   isDoughnut: boolean = false;
 
   progressColors = 
@@ -41,14 +41,14 @@ export class StatisticsComponent {
   }
 
   onSelect(data: any): void {
-    console.log('Item clicked', JSON.parse(JSON.stringify(data)));
+    //console.log('Item clicked', JSON.parse(JSON.stringify(data)));
   }
 
   onActivate(data: any): void {
-    console.log('Activate', JSON.parse(JSON.stringify(data)));
+    //console.log('Activate', JSON.parse(JSON.stringify(data)));
   }
 
   onDeactivate(data: any): void {
-    console.log('Deactivate', JSON.parse(JSON.stringify(data)));
+    //console.log('Deactivate', JSON.parse(JSON.stringify(data)));
   }
 }
