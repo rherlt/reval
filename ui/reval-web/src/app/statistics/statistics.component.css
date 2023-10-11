@@ -18,3 +18,12 @@ mat-divider {
 mat-card-header {
     padding: 5px;
 }
+
+.span-custom {
+    display: inline-block;
+}
+
+mat-list {
+    flex-grow: 1;
+    overflow: auto;
+}
