@@ -22,6 +22,7 @@ func (Evaluation) Fields() []ent.Field {
 		field.String("externalId").Optional(),
 		field.Time("date").Optional(),
 		field.String("evaluationResult"),
+		field.UUID("evaluationPromptId", uuid.UUID{}),
 	}
 }
 
@@ -39,5 +40,11 @@ func (Evaluation) Edges() []ent.Edge {
 			Unique().
 			Required().
 			Field("responseId"),
+
+		edge.From("evaluationPrompts", EvaluationPrompt.Type).
+			Ref("evaluationPrompts").
+			Unique().
+			Required().
+			Field("evaluationPromptId"),
 	}
 }
