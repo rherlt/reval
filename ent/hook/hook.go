@@ -9,6 +9,18 @@ import (
 	"github.com/rherlt/reval/ent"
 )
 
+// The ConfigurationFunc type is an adapter to allow the use of ordinary
+// function as Configuration mutator.
+type ConfigurationFunc func(context.Context, *ent.ConfigurationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ConfigurationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ConfigurationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ConfigurationMutation", m)
+}
+
 // The EvaluationFunc type is an adapter to allow the use of ordinary
 // function as Evaluation mutator.
 type EvaluationFunc func(context.Context, *ent.EvaluationMutation) (ent.Value, error)

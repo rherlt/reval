@@ -4,6 +4,7 @@ package ent
 
 import (
 	"github.com/google/uuid"
+	"github.com/rherlt/reval/ent/configuration"
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/request"
@@ -17,6 +18,20 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	configurationFields := schema.Configuration{}.Fields()
+	_ = configurationFields
+	// configurationDescKey is the schema descriptor for key field.
+	configurationDescKey := configurationFields[1].Descriptor()
+	// configuration.KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	configuration.KeyValidator = configurationDescKey.Validators[0].(func(string) error)
+	// configurationDescValue is the schema descriptor for value field.
+	configurationDescValue := configurationFields[2].Descriptor()
+	// configuration.ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	configuration.ValueValidator = configurationDescValue.Validators[0].(func(string) error)
+	// configurationDescID is the schema descriptor for id field.
+	configurationDescID := configurationFields[0].Descriptor()
+	// configuration.DefaultID holds the default value on creation for the id field.
+	configuration.DefaultID = configurationDescID.Default.(func() uuid.UUID)
 	evaluationFields := schema.Evaluation{}.Fields()
 	_ = evaluationFields
 	// evaluationDescID is the schema descriptor for id field.

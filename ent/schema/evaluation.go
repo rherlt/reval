@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// User holds the schema definition for the User entity.
+// Evaluation holds the schema definition for the Evaluation entity.
 type Evaluation struct {
 	ent.Schema
 }
 
-// Fields of the User.
+// Fields of the Evaluation.
 func (Evaluation) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
@@ -26,7 +26,7 @@ func (Evaluation) Fields() []ent.Field {
 	}
 }
 
-// Edges of the User.
+// Edges of the Evaluation.
 func (Evaluation) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).

@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Configuration is the client for interacting with the Configuration builders.
+	Configuration *ConfigurationClient
 	// Evaluation is the client for interacting with the Evaluation builders.
 	Evaluation *EvaluationClient
 	// EvaluationPrompt is the client for interacting with the EvaluationPrompt builders.
@@ -155,6 +157,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Configuration = NewConfigurationClient(tx.config)
 	tx.Evaluation = NewEvaluationClient(tx.config)
 	tx.EvaluationPrompt = NewEvaluationPromptClient(tx.config)
 	tx.Request = NewRequestClient(tx.config)
@@ -170,7 +173,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Evaluation.QueryXXX(), the query will be executed
+// applies a query, for example: Configuration.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

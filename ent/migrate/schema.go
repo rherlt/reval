@@ -8,6 +8,18 @@ import (
 )
 
 var (
+	// ConfigurationsColumns holds the columns for the "configurations" table.
+	ConfigurationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "key", Type: field.TypeString},
+		{Name: "value", Type: field.TypeString},
+	}
+	// ConfigurationsTable holds the schema information for the "configurations" table.
+	ConfigurationsTable = &schema.Table{
+		Name:       "configurations",
+		Columns:    ConfigurationsColumns,
+		PrimaryKey: []*schema.Column{ConfigurationsColumns[0]},
+	}
 	// EvaluationsColumns holds the columns for the "evaluations" table.
 	EvaluationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -131,6 +143,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ConfigurationsTable,
 		EvaluationsTable,
 		EvaluationPromptsTable,
 		RequestsTable,

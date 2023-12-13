@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/rherlt/reval/ent/configuration"
 	"github.com/rherlt/reval/ent/evaluation"
 	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/request"
@@ -78,6 +79,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			configuration.Table:    configuration.ValidColumn,
 			evaluation.Table:       evaluation.ValidColumn,
 			evaluationprompt.Table: evaluationprompt.ValidColumn,
 			request.Table:          request.ValidColumn,

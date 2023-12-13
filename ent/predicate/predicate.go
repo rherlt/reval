@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Configuration is the predicate function for configuration builders.
+type Configuration func(*sql.Selector)
+
 // Evaluation is the predicate function for evaluation builders.
 type Evaluation func(*sql.Selector)
 

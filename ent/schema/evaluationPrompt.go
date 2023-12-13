@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// User holds the schema definition for the User entity.
+// EvaluationPrompt holds the schema definition for the EvaluationPrompt entity.
 type EvaluationPrompt struct {
 	ent.Schema
 }
 
-// Fields of the EvaluationPrompts.
+// Fields of the EvaluationPrompt.
 func (EvaluationPrompt) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
@@ -21,7 +21,7 @@ func (EvaluationPrompt) Fields() []ent.Field {
 	}
 }
 
-// Edges of the EvaluationPrompts.
+// Edges of the EvaluationPrompt.
 func (EvaluationPrompt) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("evaluations", Evaluation.Type),
