@@ -82,7 +82,8 @@ func (si EvaluationApiServerInterface) GetEvaluation(c *gin.Context, params eval
 	}
 
 	var respBody = evaluationapi.GetEvaluationResponse{
-		Id: response.ID.String(),
+		Id:               response.ID.String(),
+		EvaluationPrompt: "Hallo das ist mein Prompt",
 		Response: evaluationapi.Message{
 			From:    response.From,
 			Subject: response.Subject,
