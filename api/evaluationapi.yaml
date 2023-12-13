@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: '0.3'
+  version: '0.4'
 servers:
   - url: '{protocol}://{environment}:{port}/api/'
     variables:
@@ -162,11 +162,15 @@ components:
           $ref: '#/components/schemas/Message'
         evaluations:
           $ref: '#/components/schemas/Evaluations'
+        evaluationPrompt:
+          type: string
+          example: "Bewerte die angezeigte Nachricht als 'Gut' oder 'Schlecht'"
       required: 
         - id
         - response
         - request
         - evaluations
+        - evaluationPrompt
     Message:
       description: Message.
       properties:
