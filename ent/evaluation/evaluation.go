@@ -23,10 +23,14 @@ const (
 	FieldDate = "date"
 	// FieldEvaluationResult holds the string denoting the evaluationresult field in the database.
 	FieldEvaluationResult = "evaluation_result"
+	// FieldEvaluationPromptId holds the string denoting the evaluationpromptid field in the database.
+	FieldEvaluationPromptId = "evaluation_prompt_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeResponse holds the string denoting the response edge name in mutations.
 	EdgeResponse = "response"
+	// EdgeEvaluationPrompts holds the string denoting the evaluationprompts edge name in mutations.
+	EdgeEvaluationPrompts = "evaluationPrompts"
 	// Table holds the table name of the evaluation in the database.
 	Table = "evaluations"
 	// UserTable is the table that holds the user relation/edge.
@@ -43,6 +47,13 @@ const (
 	ResponseInverseTable = "responses"
 	// ResponseColumn is the table column denoting the response relation/edge.
 	ResponseColumn = "response_id"
+	// EvaluationPromptsTable is the table that holds the evaluationPrompts relation/edge.
+	EvaluationPromptsTable = "evaluations"
+	// EvaluationPromptsInverseTable is the table name for the EvaluationPrompt entity.
+	// It exists in this package in order to avoid circular dependency with the "evaluationprompt" package.
+	EvaluationPromptsInverseTable = "evaluation_prompts"
+	// EvaluationPromptsColumn is the table column denoting the evaluationPrompts relation/edge.
+	EvaluationPromptsColumn = "evaluation_prompt_id"
 )
 
 // Columns holds all SQL columns for evaluation fields.
@@ -53,6 +64,7 @@ var Columns = []string{
 	FieldExternalId,
 	FieldDate,
 	FieldEvaluationResult,
+	FieldEvaluationPromptId,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -103,6 +115,11 @@ func ByEvaluationResult(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEvaluationResult, opts...).ToFunc()
 }
 
+// ByEvaluationPromptId orders the results by the evaluationPromptId field.
+func ByEvaluationPromptId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEvaluationPromptId, opts...).ToFunc()
+}
+
 // ByUserField orders the results by user field.
 func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -114,6 +131,13 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByResponseField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newResponseStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByEvaluationPromptsField orders the results by evaluationPrompts field.
+func ByEvaluationPromptsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEvaluationPromptsStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -128,5 +152,12 @@ func newResponseStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ResponseInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ResponseTable, ResponseColumn),
+	)
+}
+func newEvaluationPromptsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EvaluationPromptsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, EvaluationPromptsTable, EvaluationPromptsColumn),
 	)
 }

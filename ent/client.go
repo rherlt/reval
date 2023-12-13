@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/scenario"
@@ -29,6 +30,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Evaluation is the client for interacting with the Evaluation builders.
 	Evaluation *EvaluationClient
+	// EvaluationPrompt is the client for interacting with the EvaluationPrompt builders.
+	EvaluationPrompt *EvaluationPromptClient
 	// Request is the client for interacting with the Request builders.
 	Request *RequestClient
 	// Response is the client for interacting with the Response builders.
@@ -51,6 +54,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Evaluation = NewEvaluationClient(c.config)
+	c.EvaluationPrompt = NewEvaluationPromptClient(c.config)
 	c.Request = NewRequestClient(c.config)
 	c.Response = NewResponseClient(c.config)
 	c.Scenario = NewScenarioClient(c.config)
@@ -135,13 +139,14 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Evaluation: NewEvaluationClient(cfg),
-		Request:    NewRequestClient(cfg),
-		Response:   NewResponseClient(cfg),
-		Scenario:   NewScenarioClient(cfg),
-		User:       NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		Evaluation:       NewEvaluationClient(cfg),
+		EvaluationPrompt: NewEvaluationPromptClient(cfg),
+		Request:          NewRequestClient(cfg),
+		Response:         NewResponseClient(cfg),
+		Scenario:         NewScenarioClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
@@ -159,13 +164,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Evaluation: NewEvaluationClient(cfg),
-		Request:    NewRequestClient(cfg),
-		Response:   NewResponseClient(cfg),
-		Scenario:   NewScenarioClient(cfg),
-		User:       NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		Evaluation:       NewEvaluationClient(cfg),
+		EvaluationPrompt: NewEvaluationPromptClient(cfg),
+		Request:          NewRequestClient(cfg),
+		Response:         NewResponseClient(cfg),
+		Scenario:         NewScenarioClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
@@ -194,21 +200,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Evaluation.Use(hooks...)
-	c.Request.Use(hooks...)
-	c.Response.Use(hooks...)
-	c.Scenario.Use(hooks...)
-	c.User.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Evaluation, c.EvaluationPrompt, c.Request, c.Response, c.Scenario, c.User,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Evaluation.Intercept(interceptors...)
-	c.Request.Intercept(interceptors...)
-	c.Response.Intercept(interceptors...)
-	c.Scenario.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Evaluation, c.EvaluationPrompt, c.Request, c.Response, c.Scenario, c.User,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -216,6 +222,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *EvaluationMutation:
 		return c.Evaluation.mutate(ctx, m)
+	case *EvaluationPromptMutation:
+		return c.EvaluationPrompt.mutate(ctx, m)
 	case *RequestMutation:
 		return c.Request.mutate(ctx, m)
 	case *ResponseMutation:
@@ -354,6 +362,22 @@ func (c *EvaluationClient) QueryResponse(e *Evaluation) *ResponseQuery {
 	return query
 }
 
+// QueryEvaluationPrompts queries the evaluationPrompts edge of a Evaluation.
+func (c *EvaluationClient) QueryEvaluationPrompts(e *Evaluation) *EvaluationPromptQuery {
+	query := (&EvaluationPromptClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := e.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(evaluation.Table, evaluation.FieldID, id),
+			sqlgraph.To(evaluationprompt.Table, evaluationprompt.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, evaluation.EvaluationPromptsTable, evaluation.EvaluationPromptsColumn),
+		)
+		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *EvaluationClient) Hooks() []Hook {
 	return c.hooks.Evaluation
@@ -376,6 +400,140 @@ func (c *EvaluationClient) mutate(ctx context.Context, m *EvaluationMutation) (V
 		return (&EvaluationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Evaluation mutation op: %q", m.Op())
+	}
+}
+
+// EvaluationPromptClient is a client for the EvaluationPrompt schema.
+type EvaluationPromptClient struct {
+	config
+}
+
+// NewEvaluationPromptClient returns a client for the EvaluationPrompt from the given config.
+func NewEvaluationPromptClient(c config) *EvaluationPromptClient {
+	return &EvaluationPromptClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `evaluationprompt.Hooks(f(g(h())))`.
+func (c *EvaluationPromptClient) Use(hooks ...Hook) {
+	c.hooks.EvaluationPrompt = append(c.hooks.EvaluationPrompt, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `evaluationprompt.Intercept(f(g(h())))`.
+func (c *EvaluationPromptClient) Intercept(interceptors ...Interceptor) {
+	c.inters.EvaluationPrompt = append(c.inters.EvaluationPrompt, interceptors...)
+}
+
+// Create returns a builder for creating a EvaluationPrompt entity.
+func (c *EvaluationPromptClient) Create() *EvaluationPromptCreate {
+	mutation := newEvaluationPromptMutation(c.config, OpCreate)
+	return &EvaluationPromptCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EvaluationPrompt entities.
+func (c *EvaluationPromptClient) CreateBulk(builders ...*EvaluationPromptCreate) *EvaluationPromptCreateBulk {
+	return &EvaluationPromptCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EvaluationPrompt.
+func (c *EvaluationPromptClient) Update() *EvaluationPromptUpdate {
+	mutation := newEvaluationPromptMutation(c.config, OpUpdate)
+	return &EvaluationPromptUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EvaluationPromptClient) UpdateOne(ep *EvaluationPrompt) *EvaluationPromptUpdateOne {
+	mutation := newEvaluationPromptMutation(c.config, OpUpdateOne, withEvaluationPrompt(ep))
+	return &EvaluationPromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EvaluationPromptClient) UpdateOneID(id uuid.UUID) *EvaluationPromptUpdateOne {
+	mutation := newEvaluationPromptMutation(c.config, OpUpdateOne, withEvaluationPromptID(id))
+	return &EvaluationPromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EvaluationPrompt.
+func (c *EvaluationPromptClient) Delete() *EvaluationPromptDelete {
+	mutation := newEvaluationPromptMutation(c.config, OpDelete)
+	return &EvaluationPromptDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EvaluationPromptClient) DeleteOne(ep *EvaluationPrompt) *EvaluationPromptDeleteOne {
+	return c.DeleteOneID(ep.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EvaluationPromptClient) DeleteOneID(id uuid.UUID) *EvaluationPromptDeleteOne {
+	builder := c.Delete().Where(evaluationprompt.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EvaluationPromptDeleteOne{builder}
+}
+
+// Query returns a query builder for EvaluationPrompt.
+func (c *EvaluationPromptClient) Query() *EvaluationPromptQuery {
+	return &EvaluationPromptQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEvaluationPrompt},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a EvaluationPrompt entity by its id.
+func (c *EvaluationPromptClient) Get(ctx context.Context, id uuid.UUID) (*EvaluationPrompt, error) {
+	return c.Query().Where(evaluationprompt.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EvaluationPromptClient) GetX(ctx context.Context, id uuid.UUID) *EvaluationPrompt {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryEvaluations queries the evaluations edge of a EvaluationPrompt.
+func (c *EvaluationPromptClient) QueryEvaluations(ep *EvaluationPrompt) *EvaluationQuery {
+	query := (&EvaluationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ep.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(evaluationprompt.Table, evaluationprompt.FieldID, id),
+			sqlgraph.To(evaluation.Table, evaluation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, evaluationprompt.EvaluationsTable, evaluationprompt.EvaluationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ep.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *EvaluationPromptClient) Hooks() []Hook {
+	return c.hooks.EvaluationPrompt
+}
+
+// Interceptors returns the client interceptors.
+func (c *EvaluationPromptClient) Interceptors() []Interceptor {
+	return c.inters.EvaluationPrompt
+}
+
+func (c *EvaluationPromptClient) mutate(ctx context.Context, m *EvaluationPromptMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EvaluationPromptCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EvaluationPromptUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EvaluationPromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EvaluationPromptDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown EvaluationPrompt mutation op: %q", m.Op())
 	}
 }
 
@@ -950,9 +1108,10 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Evaluation, Request, Response, Scenario, User []ent.Hook
+		Evaluation, EvaluationPrompt, Request, Response, Scenario, User []ent.Hook
 	}
 	inters struct {
-		Evaluation, Request, Response, Scenario, User []ent.Interceptor
+		Evaluation, EvaluationPrompt, Request, Response, Scenario,
+		User []ent.Interceptor
 	}
 )

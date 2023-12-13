@@ -9,6 +9,9 @@ import (
 // Evaluation is the predicate function for evaluation builders.
 type Evaluation func(*sql.Selector)
 
+// EvaluationPrompt is the predicate function for evaluationprompt builders.
+type EvaluationPrompt func(*sql.Selector)
+
 // Request is the predicate function for request builders.
 type Request func(*sql.Selector)
 

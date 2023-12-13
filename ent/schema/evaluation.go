@@ -42,7 +42,7 @@ func (Evaluation) Edges() []ent.Edge {
 			Field("responseId"),
 
 		edge.From("evaluationPrompts", EvaluationPrompt.Type).
-			Ref("evaluationPrompts").
+			Ref("evaluations").
 			Unique().
 			Required().
 			Field("evaluationPromptId"),

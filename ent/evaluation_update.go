@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/predicate"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/user"
@@ -89,6 +90,12 @@ func (eu *EvaluationUpdate) SetEvaluationResult(s string) *EvaluationUpdate {
 	return eu
 }
 
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (eu *EvaluationUpdate) SetEvaluationPromptId(u uuid.UUID) *EvaluationUpdate {
+	eu.mutation.SetEvaluationPromptId(u)
+	return eu
+}
+
 // SetUserID sets the "user" edge to the User entity by ID.
 func (eu *EvaluationUpdate) SetUserID(id uuid.UUID) *EvaluationUpdate {
 	eu.mutation.SetUserID(id)
@@ -111,6 +118,17 @@ func (eu *EvaluationUpdate) SetResponse(r *Response) *EvaluationUpdate {
 	return eu.SetResponseID(r.ID)
 }
 
+// SetEvaluationPromptsID sets the "evaluationPrompts" edge to the EvaluationPrompt entity by ID.
+func (eu *EvaluationUpdate) SetEvaluationPromptsID(id uuid.UUID) *EvaluationUpdate {
+	eu.mutation.SetEvaluationPromptsID(id)
+	return eu
+}
+
+// SetEvaluationPrompts sets the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (eu *EvaluationUpdate) SetEvaluationPrompts(e *EvaluationPrompt) *EvaluationUpdate {
+	return eu.SetEvaluationPromptsID(e.ID)
+}
+
 // Mutation returns the EvaluationMutation object of the builder.
 func (eu *EvaluationUpdate) Mutation() *EvaluationMutation {
 	return eu.mutation
@@ -125,6 +143,12 @@ func (eu *EvaluationUpdate) ClearUser() *EvaluationUpdate {
 // ClearResponse clears the "response" edge to the Response entity.
 func (eu *EvaluationUpdate) ClearResponse() *EvaluationUpdate {
 	eu.mutation.ClearResponse()
+	return eu
+}
+
+// ClearEvaluationPrompts clears the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (eu *EvaluationUpdate) ClearEvaluationPrompts() *EvaluationUpdate {
+	eu.mutation.ClearEvaluationPrompts()
 	return eu
 }
 
@@ -162,6 +186,9 @@ func (eu *EvaluationUpdate) check() error {
 	}
 	if _, ok := eu.mutation.ResponseID(); eu.mutation.ResponseCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Evaluation.response"`)
+	}
+	if _, ok := eu.mutation.EvaluationPromptsID(); eu.mutation.EvaluationPromptsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Evaluation.evaluationPrompts"`)
 	}
 	return nil
 }
@@ -251,6 +278,35 @@ func (eu *EvaluationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if eu.mutation.EvaluationPromptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   evaluation.EvaluationPromptsTable,
+			Columns: []string{evaluation.EvaluationPromptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(evaluationprompt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.EvaluationPromptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   evaluation.EvaluationPromptsTable,
+			Columns: []string{evaluation.EvaluationPromptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(evaluationprompt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{evaluation.Label}
@@ -329,6 +385,12 @@ func (euo *EvaluationUpdateOne) SetEvaluationResult(s string) *EvaluationUpdateO
 	return euo
 }
 
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (euo *EvaluationUpdateOne) SetEvaluationPromptId(u uuid.UUID) *EvaluationUpdateOne {
+	euo.mutation.SetEvaluationPromptId(u)
+	return euo
+}
+
 // SetUserID sets the "user" edge to the User entity by ID.
 func (euo *EvaluationUpdateOne) SetUserID(id uuid.UUID) *EvaluationUpdateOne {
 	euo.mutation.SetUserID(id)
@@ -351,6 +413,17 @@ func (euo *EvaluationUpdateOne) SetResponse(r *Response) *EvaluationUpdateOne {
 	return euo.SetResponseID(r.ID)
 }
 
+// SetEvaluationPromptsID sets the "evaluationPrompts" edge to the EvaluationPrompt entity by ID.
+func (euo *EvaluationUpdateOne) SetEvaluationPromptsID(id uuid.UUID) *EvaluationUpdateOne {
+	euo.mutation.SetEvaluationPromptsID(id)
+	return euo
+}
+
+// SetEvaluationPrompts sets the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (euo *EvaluationUpdateOne) SetEvaluationPrompts(e *EvaluationPrompt) *EvaluationUpdateOne {
+	return euo.SetEvaluationPromptsID(e.ID)
+}
+
 // Mutation returns the EvaluationMutation object of the builder.
 func (euo *EvaluationUpdateOne) Mutation() *EvaluationMutation {
 	return euo.mutation
@@ -365,6 +438,12 @@ func (euo *EvaluationUpdateOne) ClearUser() *EvaluationUpdateOne {
 // ClearResponse clears the "response" edge to the Response entity.
 func (euo *EvaluationUpdateOne) ClearResponse() *EvaluationUpdateOne {
 	euo.mutation.ClearResponse()
+	return euo
+}
+
+// ClearEvaluationPrompts clears the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (euo *EvaluationUpdateOne) ClearEvaluationPrompts() *EvaluationUpdateOne {
+	euo.mutation.ClearEvaluationPrompts()
 	return euo
 }
 
@@ -415,6 +494,9 @@ func (euo *EvaluationUpdateOne) check() error {
 	}
 	if _, ok := euo.mutation.ResponseID(); euo.mutation.ResponseCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Evaluation.response"`)
+	}
+	if _, ok := euo.mutation.EvaluationPromptsID(); euo.mutation.EvaluationPromptsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Evaluation.evaluationPrompts"`)
 	}
 	return nil
 }
@@ -514,6 +596,35 @@ func (euo *EvaluationUpdateOne) sqlSave(ctx context.Context) (_node *Evaluation,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(response.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if euo.mutation.EvaluationPromptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   evaluation.EvaluationPromptsTable,
+			Columns: []string{evaluation.EvaluationPromptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(evaluationprompt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.EvaluationPromptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   evaluation.EvaluationPromptsTable,
+			Columns: []string{evaluation.EvaluationPromptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(evaluationprompt.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -81,6 +81,11 @@ func EvaluationResult(v string) predicate.Evaluation {
 	return predicate.Evaluation(sql.FieldEQ(FieldEvaluationResult, v))
 }
 
+// EvaluationPromptId applies equality check predicate on the "evaluationPromptId" field. It's identical to EvaluationPromptIdEQ.
+func EvaluationPromptId(v uuid.UUID) predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldEQ(FieldEvaluationPromptId, v))
+}
+
 // UserIdEQ applies the EQ predicate on the "userId" field.
 func UserIdEQ(v uuid.UUID) predicate.Evaluation {
 	return predicate.Evaluation(sql.FieldEQ(FieldUserId, v))
@@ -311,6 +316,26 @@ func EvaluationResultContainsFold(v string) predicate.Evaluation {
 	return predicate.Evaluation(sql.FieldContainsFold(FieldEvaluationResult, v))
 }
 
+// EvaluationPromptIdEQ applies the EQ predicate on the "evaluationPromptId" field.
+func EvaluationPromptIdEQ(v uuid.UUID) predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldEQ(FieldEvaluationPromptId, v))
+}
+
+// EvaluationPromptIdNEQ applies the NEQ predicate on the "evaluationPromptId" field.
+func EvaluationPromptIdNEQ(v uuid.UUID) predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldNEQ(FieldEvaluationPromptId, v))
+}
+
+// EvaluationPromptIdIn applies the In predicate on the "evaluationPromptId" field.
+func EvaluationPromptIdIn(vs ...uuid.UUID) predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldIn(FieldEvaluationPromptId, vs...))
+}
+
+// EvaluationPromptIdNotIn applies the NotIn predicate on the "evaluationPromptId" field.
+func EvaluationPromptIdNotIn(vs ...uuid.UUID) predicate.Evaluation {
+	return predicate.Evaluation(sql.FieldNotIn(FieldEvaluationPromptId, vs...))
+}
+
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.Evaluation {
 	return predicate.Evaluation(func(s *sql.Selector) {
@@ -349,6 +374,29 @@ func HasResponse() predicate.Evaluation {
 func HasResponseWith(preds ...predicate.Response) predicate.Evaluation {
 	return predicate.Evaluation(func(s *sql.Selector) {
 		step := newResponseStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEvaluationPrompts applies the HasEdge predicate on the "evaluationPrompts" edge.
+func HasEvaluationPrompts() predicate.Evaluation {
+	return predicate.Evaluation(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, EvaluationPromptsTable, EvaluationPromptsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEvaluationPromptsWith applies the HasEdge predicate on the "evaluationPrompts" edge with a given conditions (other predicates).
+func HasEvaluationPromptsWith(preds ...predicate.EvaluationPrompt) predicate.Evaluation {
+	return predicate.Evaluation(func(s *sql.Selector) {
+		step := newEvaluationPromptsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

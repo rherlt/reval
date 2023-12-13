@@ -14,6 +14,7 @@ var (
 		{Name: "external_id", Type: field.TypeString, Nullable: true},
 		{Name: "date", Type: field.TypeTime, Nullable: true},
 		{Name: "evaluation_result", Type: field.TypeString},
+		{Name: "evaluation_prompt_id", Type: field.TypeUUID},
 		{Name: "response_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
@@ -24,18 +25,35 @@ var (
 		PrimaryKey: []*schema.Column{EvaluationsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "evaluations_responses_evaluations",
+				Symbol:     "evaluations_evaluation_prompts_evaluations",
 				Columns:    []*schema.Column{EvaluationsColumns[4]},
+				RefColumns: []*schema.Column{EvaluationPromptsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "evaluations_responses_evaluations",
+				Columns:    []*schema.Column{EvaluationsColumns[5]},
 				RefColumns: []*schema.Column{ResponsesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "evaluations_users_evaluations",
-				Columns:    []*schema.Column{EvaluationsColumns[5]},
+				Columns:    []*schema.Column{EvaluationsColumns[6]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
+	}
+	// EvaluationPromptsColumns holds the columns for the "evaluation_prompts" table.
+	EvaluationPromptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "prompt", Type: field.TypeString},
+	}
+	// EvaluationPromptsTable holds the schema information for the "evaluation_prompts" table.
+	EvaluationPromptsTable = &schema.Table{
+		Name:       "evaluation_prompts",
+		Columns:    EvaluationPromptsColumns,
+		PrimaryKey: []*schema.Column{EvaluationPromptsColumns[0]},
 	}
 	// RequestsColumns holds the columns for the "requests" table.
 	RequestsColumns = []*schema.Column{
@@ -114,6 +132,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		EvaluationsTable,
+		EvaluationPromptsTable,
 		RequestsTable,
 		ResponsesTable,
 		ScenariosTable,
@@ -122,8 +141,9 @@ var (
 )
 
 func init() {
-	EvaluationsTable.ForeignKeys[0].RefTable = ResponsesTable
-	EvaluationsTable.ForeignKeys[1].RefTable = UsersTable
+	EvaluationsTable.ForeignKeys[0].RefTable = EvaluationPromptsTable
+	EvaluationsTable.ForeignKeys[1].RefTable = ResponsesTable
+	EvaluationsTable.ForeignKeys[2].RefTable = UsersTable
 	ResponsesTable.ForeignKeys[0].RefTable = RequestsTable
 	ResponsesTable.ForeignKeys[1].RefTable = ScenariosTable
 }

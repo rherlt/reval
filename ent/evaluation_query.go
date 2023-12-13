@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/predicate"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/user"
@@ -20,12 +21,13 @@ import (
 // EvaluationQuery is the builder for querying Evaluation entities.
 type EvaluationQuery struct {
 	config
-	ctx          *QueryContext
-	order        []evaluation.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Evaluation
-	withUser     *UserQuery
-	withResponse *ResponseQuery
+	ctx                   *QueryContext
+	order                 []evaluation.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.Evaluation
+	withUser              *UserQuery
+	withResponse          *ResponseQuery
+	withEvaluationPrompts *EvaluationPromptQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -99,6 +101,28 @@ func (eq *EvaluationQuery) QueryResponse() *ResponseQuery {
 			sqlgraph.From(evaluation.Table, evaluation.FieldID, selector),
 			sqlgraph.To(response.Table, response.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, evaluation.ResponseTable, evaluation.ResponseColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryEvaluationPrompts chains the current query on the "evaluationPrompts" edge.
+func (eq *EvaluationQuery) QueryEvaluationPrompts() *EvaluationPromptQuery {
+	query := (&EvaluationPromptClient{config: eq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := eq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := eq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(evaluation.Table, evaluation.FieldID, selector),
+			sqlgraph.To(evaluationprompt.Table, evaluationprompt.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, evaluation.EvaluationPromptsTable, evaluation.EvaluationPromptsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,13 +317,14 @@ func (eq *EvaluationQuery) Clone() *EvaluationQuery {
 		return nil
 	}
 	return &EvaluationQuery{
-		config:       eq.config,
-		ctx:          eq.ctx.Clone(),
-		order:        append([]evaluation.OrderOption{}, eq.order...),
-		inters:       append([]Interceptor{}, eq.inters...),
-		predicates:   append([]predicate.Evaluation{}, eq.predicates...),
-		withUser:     eq.withUser.Clone(),
-		withResponse: eq.withResponse.Clone(),
+		config:                eq.config,
+		ctx:                   eq.ctx.Clone(),
+		order:                 append([]evaluation.OrderOption{}, eq.order...),
+		inters:                append([]Interceptor{}, eq.inters...),
+		predicates:            append([]predicate.Evaluation{}, eq.predicates...),
+		withUser:              eq.withUser.Clone(),
+		withResponse:          eq.withResponse.Clone(),
+		withEvaluationPrompts: eq.withEvaluationPrompts.Clone(),
 		// clone intermediate query.
 		sql:  eq.sql.Clone(),
 		path: eq.path,
@@ -325,6 +350,17 @@ func (eq *EvaluationQuery) WithResponse(opts ...func(*ResponseQuery)) *Evaluatio
 		opt(query)
 	}
 	eq.withResponse = query
+	return eq
+}
+
+// WithEvaluationPrompts tells the query-builder to eager-load the nodes that are connected to
+// the "evaluationPrompts" edge. The optional arguments are used to configure the query builder of the edge.
+func (eq *EvaluationQuery) WithEvaluationPrompts(opts ...func(*EvaluationPromptQuery)) *EvaluationQuery {
+	query := (&EvaluationPromptClient{config: eq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	eq.withEvaluationPrompts = query
 	return eq
 }
 
@@ -406,9 +442,10 @@ func (eq *EvaluationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*E
 	var (
 		nodes       = []*Evaluation{}
 		_spec       = eq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			eq.withUser != nil,
 			eq.withResponse != nil,
+			eq.withEvaluationPrompts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -438,6 +475,12 @@ func (eq *EvaluationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*E
 	if query := eq.withResponse; query != nil {
 		if err := eq.loadResponse(ctx, query, nodes, nil,
 			func(n *Evaluation, e *Response) { n.Edges.Response = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := eq.withEvaluationPrompts; query != nil {
+		if err := eq.loadEvaluationPrompts(ctx, query, nodes, nil,
+			func(n *Evaluation, e *EvaluationPrompt) { n.Edges.EvaluationPrompts = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -502,6 +545,35 @@ func (eq *EvaluationQuery) loadResponse(ctx context.Context, query *ResponseQuer
 	}
 	return nil
 }
+func (eq *EvaluationQuery) loadEvaluationPrompts(ctx context.Context, query *EvaluationPromptQuery, nodes []*Evaluation, init func(*Evaluation), assign func(*Evaluation, *EvaluationPrompt)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Evaluation)
+	for i := range nodes {
+		fk := nodes[i].EvaluationPromptId
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(evaluationprompt.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "evaluationPromptId" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (eq *EvaluationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := eq.querySpec()
@@ -533,6 +605,9 @@ func (eq *EvaluationQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if eq.withResponse != nil {
 			_spec.Node.AddColumnOnce(evaluation.FieldResponseId)
+		}
+		if eq.withEvaluationPrompts != nil {
+			_spec.Node.AddColumnOnce(evaluation.FieldEvaluationPromptId)
 		}
 	}
 	if ps := eq.predicates; len(ps) > 0 {

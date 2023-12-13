@@ -21,6 +21,18 @@ func (f EvaluationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EvaluationMutation", m)
 }
 
+// The EvaluationPromptFunc type is an adapter to allow the use of ordinary
+// function as EvaluationPrompt mutator.
+type EvaluationPromptFunc func(context.Context, *ent.EvaluationPromptMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EvaluationPromptFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EvaluationPromptMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EvaluationPromptMutation", m)
+}
+
 // The RequestFunc type is an adapter to allow the use of ordinary
 // function as Request mutator.
 type RequestFunc func(context.Context, *ent.RequestMutation) (ent.Value, error)

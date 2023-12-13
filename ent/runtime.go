@@ -5,6 +5,7 @@ package ent
 import (
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/scenario"
@@ -22,6 +23,12 @@ func init() {
 	evaluationDescID := evaluationFields[0].Descriptor()
 	// evaluation.DefaultID holds the default value on creation for the id field.
 	evaluation.DefaultID = evaluationDescID.Default.(func() uuid.UUID)
+	evaluationpromptFields := schema.EvaluationPrompt{}.Fields()
+	_ = evaluationpromptFields
+	// evaluationpromptDescID is the schema descriptor for id field.
+	evaluationpromptDescID := evaluationpromptFields[0].Descriptor()
+	// evaluationprompt.DefaultID holds the default value on creation for the id field.
+	evaluationprompt.DefaultID = evaluationpromptDescID.Default.(func() uuid.UUID)
 	requestFields := schema.Request{}.Fields()
 	_ = requestFields
 	// requestDescID is the schema descriptor for id field.

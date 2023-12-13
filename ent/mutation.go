@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/predicate"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
@@ -29,30 +30,33 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeEvaluation = "Evaluation"
-	TypeRequest    = "Request"
-	TypeResponse   = "Response"
-	TypeScenario   = "Scenario"
-	TypeUser       = "User"
+	TypeEvaluation       = "Evaluation"
+	TypeEvaluationPrompt = "EvaluationPrompt"
+	TypeRequest          = "Request"
+	TypeResponse         = "Response"
+	TypeScenario         = "Scenario"
+	TypeUser             = "User"
 )
 
 // EvaluationMutation represents an operation that mutates the Evaluation nodes in the graph.
 type EvaluationMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *uuid.UUID
-	externalId       *string
-	date             *time.Time
-	evaluationResult *string
-	clearedFields    map[string]struct{}
-	user             *uuid.UUID
-	cleareduser      bool
-	response         *uuid.UUID
-	clearedresponse  bool
-	done             bool
-	oldValue         func(context.Context) (*Evaluation, error)
-	predicates       []predicate.Evaluation
+	op                       Op
+	typ                      string
+	id                       *uuid.UUID
+	externalId               *string
+	date                     *time.Time
+	evaluationResult         *string
+	clearedFields            map[string]struct{}
+	user                     *uuid.UUID
+	cleareduser              bool
+	response                 *uuid.UUID
+	clearedresponse          bool
+	evaluationPrompts        *uuid.UUID
+	clearedevaluationPrompts bool
+	done                     bool
+	oldValue                 func(context.Context) (*Evaluation, error)
+	predicates               []predicate.Evaluation
 }
 
 var _ ent.Mutation = (*EvaluationMutation)(nil)
@@ -365,6 +369,42 @@ func (m *EvaluationMutation) ResetEvaluationResult() {
 	m.evaluationResult = nil
 }
 
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (m *EvaluationMutation) SetEvaluationPromptId(u uuid.UUID) {
+	m.evaluationPrompts = &u
+}
+
+// EvaluationPromptId returns the value of the "evaluationPromptId" field in the mutation.
+func (m *EvaluationMutation) EvaluationPromptId() (r uuid.UUID, exists bool) {
+	v := m.evaluationPrompts
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEvaluationPromptId returns the old "evaluationPromptId" field's value of the Evaluation entity.
+// If the Evaluation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EvaluationMutation) OldEvaluationPromptId(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEvaluationPromptId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEvaluationPromptId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEvaluationPromptId: %w", err)
+	}
+	return oldValue.EvaluationPromptId, nil
+}
+
+// ResetEvaluationPromptId resets all changes to the "evaluationPromptId" field.
+func (m *EvaluationMutation) ResetEvaluationPromptId() {
+	m.evaluationPrompts = nil
+}
+
 // SetUserID sets the "user" edge to the User entity by id.
 func (m *EvaluationMutation) SetUserID(id uuid.UUID) {
 	m.user = &id
@@ -443,6 +483,45 @@ func (m *EvaluationMutation) ResetResponse() {
 	m.clearedresponse = false
 }
 
+// SetEvaluationPromptsID sets the "evaluationPrompts" edge to the EvaluationPrompt entity by id.
+func (m *EvaluationMutation) SetEvaluationPromptsID(id uuid.UUID) {
+	m.evaluationPrompts = &id
+}
+
+// ClearEvaluationPrompts clears the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (m *EvaluationMutation) ClearEvaluationPrompts() {
+	m.clearedevaluationPrompts = true
+}
+
+// EvaluationPromptsCleared reports if the "evaluationPrompts" edge to the EvaluationPrompt entity was cleared.
+func (m *EvaluationMutation) EvaluationPromptsCleared() bool {
+	return m.clearedevaluationPrompts
+}
+
+// EvaluationPromptsID returns the "evaluationPrompts" edge ID in the mutation.
+func (m *EvaluationMutation) EvaluationPromptsID() (id uuid.UUID, exists bool) {
+	if m.evaluationPrompts != nil {
+		return *m.evaluationPrompts, true
+	}
+	return
+}
+
+// EvaluationPromptsIDs returns the "evaluationPrompts" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// EvaluationPromptsID instead. It exists only for internal usage by the builders.
+func (m *EvaluationMutation) EvaluationPromptsIDs() (ids []uuid.UUID) {
+	if id := m.evaluationPrompts; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetEvaluationPrompts resets all changes to the "evaluationPrompts" edge.
+func (m *EvaluationMutation) ResetEvaluationPrompts() {
+	m.evaluationPrompts = nil
+	m.clearedevaluationPrompts = false
+}
+
 // Where appends a list predicates to the EvaluationMutation builder.
 func (m *EvaluationMutation) Where(ps ...predicate.Evaluation) {
 	m.predicates = append(m.predicates, ps...)
@@ -477,7 +556,7 @@ func (m *EvaluationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EvaluationMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.user != nil {
 		fields = append(fields, evaluation.FieldUserId)
 	}
@@ -492,6 +571,9 @@ func (m *EvaluationMutation) Fields() []string {
 	}
 	if m.evaluationResult != nil {
 		fields = append(fields, evaluation.FieldEvaluationResult)
+	}
+	if m.evaluationPrompts != nil {
+		fields = append(fields, evaluation.FieldEvaluationPromptId)
 	}
 	return fields
 }
@@ -511,6 +593,8 @@ func (m *EvaluationMutation) Field(name string) (ent.Value, bool) {
 		return m.Date()
 	case evaluation.FieldEvaluationResult:
 		return m.EvaluationResult()
+	case evaluation.FieldEvaluationPromptId:
+		return m.EvaluationPromptId()
 	}
 	return nil, false
 }
@@ -530,6 +614,8 @@ func (m *EvaluationMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldDate(ctx)
 	case evaluation.FieldEvaluationResult:
 		return m.OldEvaluationResult(ctx)
+	case evaluation.FieldEvaluationPromptId:
+		return m.OldEvaluationPromptId(ctx)
 	}
 	return nil, fmt.Errorf("unknown Evaluation field %s", name)
 }
@@ -573,6 +659,13 @@ func (m *EvaluationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEvaluationResult(v)
+		return nil
+	case evaluation.FieldEvaluationPromptId:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEvaluationPromptId(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Evaluation field %s", name)
@@ -653,18 +746,24 @@ func (m *EvaluationMutation) ResetField(name string) error {
 	case evaluation.FieldEvaluationResult:
 		m.ResetEvaluationResult()
 		return nil
+	case evaluation.FieldEvaluationPromptId:
+		m.ResetEvaluationPromptId()
+		return nil
 	}
 	return fmt.Errorf("unknown Evaluation field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *EvaluationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.user != nil {
 		edges = append(edges, evaluation.EdgeUser)
 	}
 	if m.response != nil {
 		edges = append(edges, evaluation.EdgeResponse)
+	}
+	if m.evaluationPrompts != nil {
+		edges = append(edges, evaluation.EdgeEvaluationPrompts)
 	}
 	return edges
 }
@@ -681,13 +780,17 @@ func (m *EvaluationMutation) AddedIDs(name string) []ent.Value {
 		if id := m.response; id != nil {
 			return []ent.Value{*id}
 		}
+	case evaluation.EdgeEvaluationPrompts:
+		if id := m.evaluationPrompts; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *EvaluationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	return edges
 }
 
@@ -699,12 +802,15 @@ func (m *EvaluationMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *EvaluationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.cleareduser {
 		edges = append(edges, evaluation.EdgeUser)
 	}
 	if m.clearedresponse {
 		edges = append(edges, evaluation.EdgeResponse)
+	}
+	if m.clearedevaluationPrompts {
+		edges = append(edges, evaluation.EdgeEvaluationPrompts)
 	}
 	return edges
 }
@@ -717,6 +823,8 @@ func (m *EvaluationMutation) EdgeCleared(name string) bool {
 		return m.cleareduser
 	case evaluation.EdgeResponse:
 		return m.clearedresponse
+	case evaluation.EdgeEvaluationPrompts:
+		return m.clearedevaluationPrompts
 	}
 	return false
 }
@@ -730,6 +838,9 @@ func (m *EvaluationMutation) ClearEdge(name string) error {
 		return nil
 	case evaluation.EdgeResponse:
 		m.ClearResponse()
+		return nil
+	case evaluation.EdgeEvaluationPrompts:
+		m.ClearEvaluationPrompts()
 		return nil
 	}
 	return fmt.Errorf("unknown Evaluation unique edge %s", name)
@@ -745,8 +856,436 @@ func (m *EvaluationMutation) ResetEdge(name string) error {
 	case evaluation.EdgeResponse:
 		m.ResetResponse()
 		return nil
+	case evaluation.EdgeEvaluationPrompts:
+		m.ResetEvaluationPrompts()
+		return nil
 	}
 	return fmt.Errorf("unknown Evaluation edge %s", name)
+}
+
+// EvaluationPromptMutation represents an operation that mutates the EvaluationPrompt nodes in the graph.
+type EvaluationPromptMutation struct {
+	config
+	op                 Op
+	typ                string
+	id                 *uuid.UUID
+	prompt             *string
+	clearedFields      map[string]struct{}
+	evaluations        map[uuid.UUID]struct{}
+	removedevaluations map[uuid.UUID]struct{}
+	clearedevaluations bool
+	done               bool
+	oldValue           func(context.Context) (*EvaluationPrompt, error)
+	predicates         []predicate.EvaluationPrompt
+}
+
+var _ ent.Mutation = (*EvaluationPromptMutation)(nil)
+
+// evaluationpromptOption allows management of the mutation configuration using functional options.
+type evaluationpromptOption func(*EvaluationPromptMutation)
+
+// newEvaluationPromptMutation creates new mutation for the EvaluationPrompt entity.
+func newEvaluationPromptMutation(c config, op Op, opts ...evaluationpromptOption) *EvaluationPromptMutation {
+	m := &EvaluationPromptMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEvaluationPrompt,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEvaluationPromptID sets the ID field of the mutation.
+func withEvaluationPromptID(id uuid.UUID) evaluationpromptOption {
+	return func(m *EvaluationPromptMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *EvaluationPrompt
+		)
+		m.oldValue = func(ctx context.Context) (*EvaluationPrompt, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().EvaluationPrompt.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEvaluationPrompt sets the old EvaluationPrompt of the mutation.
+func withEvaluationPrompt(node *EvaluationPrompt) evaluationpromptOption {
+	return func(m *EvaluationPromptMutation) {
+		m.oldValue = func(context.Context) (*EvaluationPrompt, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EvaluationPromptMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EvaluationPromptMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of EvaluationPrompt entities.
+func (m *EvaluationPromptMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EvaluationPromptMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EvaluationPromptMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().EvaluationPrompt.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetPrompt sets the "prompt" field.
+func (m *EvaluationPromptMutation) SetPrompt(s string) {
+	m.prompt = &s
+}
+
+// Prompt returns the value of the "prompt" field in the mutation.
+func (m *EvaluationPromptMutation) Prompt() (r string, exists bool) {
+	v := m.prompt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrompt returns the old "prompt" field's value of the EvaluationPrompt entity.
+// If the EvaluationPrompt object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EvaluationPromptMutation) OldPrompt(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrompt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrompt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrompt: %w", err)
+	}
+	return oldValue.Prompt, nil
+}
+
+// ResetPrompt resets all changes to the "prompt" field.
+func (m *EvaluationPromptMutation) ResetPrompt() {
+	m.prompt = nil
+}
+
+// AddEvaluationIDs adds the "evaluations" edge to the Evaluation entity by ids.
+func (m *EvaluationPromptMutation) AddEvaluationIDs(ids ...uuid.UUID) {
+	if m.evaluations == nil {
+		m.evaluations = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.evaluations[ids[i]] = struct{}{}
+	}
+}
+
+// ClearEvaluations clears the "evaluations" edge to the Evaluation entity.
+func (m *EvaluationPromptMutation) ClearEvaluations() {
+	m.clearedevaluations = true
+}
+
+// EvaluationsCleared reports if the "evaluations" edge to the Evaluation entity was cleared.
+func (m *EvaluationPromptMutation) EvaluationsCleared() bool {
+	return m.clearedevaluations
+}
+
+// RemoveEvaluationIDs removes the "evaluations" edge to the Evaluation entity by IDs.
+func (m *EvaluationPromptMutation) RemoveEvaluationIDs(ids ...uuid.UUID) {
+	if m.removedevaluations == nil {
+		m.removedevaluations = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.evaluations, ids[i])
+		m.removedevaluations[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedEvaluations returns the removed IDs of the "evaluations" edge to the Evaluation entity.
+func (m *EvaluationPromptMutation) RemovedEvaluationsIDs() (ids []uuid.UUID) {
+	for id := range m.removedevaluations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// EvaluationsIDs returns the "evaluations" edge IDs in the mutation.
+func (m *EvaluationPromptMutation) EvaluationsIDs() (ids []uuid.UUID) {
+	for id := range m.evaluations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetEvaluations resets all changes to the "evaluations" edge.
+func (m *EvaluationPromptMutation) ResetEvaluations() {
+	m.evaluations = nil
+	m.clearedevaluations = false
+	m.removedevaluations = nil
+}
+
+// Where appends a list predicates to the EvaluationPromptMutation builder.
+func (m *EvaluationPromptMutation) Where(ps ...predicate.EvaluationPrompt) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the EvaluationPromptMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *EvaluationPromptMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.EvaluationPrompt, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *EvaluationPromptMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *EvaluationPromptMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (EvaluationPrompt).
+func (m *EvaluationPromptMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EvaluationPromptMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.prompt != nil {
+		fields = append(fields, evaluationprompt.FieldPrompt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EvaluationPromptMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case evaluationprompt.FieldPrompt:
+		return m.Prompt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EvaluationPromptMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case evaluationprompt.FieldPrompt:
+		return m.OldPrompt(ctx)
+	}
+	return nil, fmt.Errorf("unknown EvaluationPrompt field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EvaluationPromptMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case evaluationprompt.FieldPrompt:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrompt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationPrompt field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EvaluationPromptMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EvaluationPromptMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EvaluationPromptMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EvaluationPrompt numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EvaluationPromptMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EvaluationPromptMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EvaluationPromptMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown EvaluationPrompt nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EvaluationPromptMutation) ResetField(name string) error {
+	switch name {
+	case evaluationprompt.FieldPrompt:
+		m.ResetPrompt()
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationPrompt field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EvaluationPromptMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.evaluations != nil {
+		edges = append(edges, evaluationprompt.EdgeEvaluations)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EvaluationPromptMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case evaluationprompt.EdgeEvaluations:
+		ids := make([]ent.Value, 0, len(m.evaluations))
+		for id := range m.evaluations {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EvaluationPromptMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedevaluations != nil {
+		edges = append(edges, evaluationprompt.EdgeEvaluations)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EvaluationPromptMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case evaluationprompt.EdgeEvaluations:
+		ids := make([]ent.Value, 0, len(m.removedevaluations))
+		for id := range m.removedevaluations {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EvaluationPromptMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedevaluations {
+		edges = append(edges, evaluationprompt.EdgeEvaluations)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EvaluationPromptMutation) EdgeCleared(name string) bool {
+	switch name {
+	case evaluationprompt.EdgeEvaluations:
+		return m.clearedevaluations
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EvaluationPromptMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EvaluationPrompt unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EvaluationPromptMutation) ResetEdge(name string) error {
+	switch name {
+	case evaluationprompt.EdgeEvaluations:
+		m.ResetEvaluations()
+		return nil
+	}
+	return fmt.Errorf("unknown EvaluationPrompt edge %s", name)
 }
 
 // RequestMutation represents an operation that mutates the Request nodes in the graph.

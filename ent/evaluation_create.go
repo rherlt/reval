@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/user"
 )
@@ -72,6 +73,12 @@ func (ec *EvaluationCreate) SetEvaluationResult(s string) *EvaluationCreate {
 	return ec
 }
 
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (ec *EvaluationCreate) SetEvaluationPromptId(u uuid.UUID) *EvaluationCreate {
+	ec.mutation.SetEvaluationPromptId(u)
+	return ec
+}
+
 // SetID sets the "id" field.
 func (ec *EvaluationCreate) SetID(u uuid.UUID) *EvaluationCreate {
 	ec.mutation.SetID(u)
@@ -106,6 +113,17 @@ func (ec *EvaluationCreate) SetResponseID(id uuid.UUID) *EvaluationCreate {
 // SetResponse sets the "response" edge to the Response entity.
 func (ec *EvaluationCreate) SetResponse(r *Response) *EvaluationCreate {
 	return ec.SetResponseID(r.ID)
+}
+
+// SetEvaluationPromptsID sets the "evaluationPrompts" edge to the EvaluationPrompt entity by ID.
+func (ec *EvaluationCreate) SetEvaluationPromptsID(id uuid.UUID) *EvaluationCreate {
+	ec.mutation.SetEvaluationPromptsID(id)
+	return ec
+}
+
+// SetEvaluationPrompts sets the "evaluationPrompts" edge to the EvaluationPrompt entity.
+func (ec *EvaluationCreate) SetEvaluationPrompts(e *EvaluationPrompt) *EvaluationCreate {
+	return ec.SetEvaluationPromptsID(e.ID)
 }
 
 // Mutation returns the EvaluationMutation object of the builder.
@@ -160,11 +178,17 @@ func (ec *EvaluationCreate) check() error {
 	if _, ok := ec.mutation.EvaluationResult(); !ok {
 		return &ValidationError{Name: "evaluationResult", err: errors.New(`ent: missing required field "Evaluation.evaluationResult"`)}
 	}
+	if _, ok := ec.mutation.EvaluationPromptId(); !ok {
+		return &ValidationError{Name: "evaluationPromptId", err: errors.New(`ent: missing required field "Evaluation.evaluationPromptId"`)}
+	}
 	if _, ok := ec.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Evaluation.user"`)}
 	}
 	if _, ok := ec.mutation.ResponseID(); !ok {
 		return &ValidationError{Name: "response", err: errors.New(`ent: missing required edge "Evaluation.response"`)}
+	}
+	if _, ok := ec.mutation.EvaluationPromptsID(); !ok {
+		return &ValidationError{Name: "evaluationPrompts", err: errors.New(`ent: missing required edge "Evaluation.evaluationPrompts"`)}
 	}
 	return nil
 }
@@ -246,6 +270,23 @@ func (ec *EvaluationCreate) createSpec() (*Evaluation, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ResponseId = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ec.mutation.EvaluationPromptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   evaluation.EvaluationPromptsTable,
+			Columns: []string{evaluation.EvaluationPromptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(evaluationprompt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.EvaluationPromptId = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -369,6 +410,18 @@ func (u *EvaluationUpsert) SetEvaluationResult(v string) *EvaluationUpsert {
 // UpdateEvaluationResult sets the "evaluationResult" field to the value that was provided on create.
 func (u *EvaluationUpsert) UpdateEvaluationResult() *EvaluationUpsert {
 	u.SetExcluded(evaluation.FieldEvaluationResult)
+	return u
+}
+
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (u *EvaluationUpsert) SetEvaluationPromptId(v uuid.UUID) *EvaluationUpsert {
+	u.Set(evaluation.FieldEvaluationPromptId, v)
+	return u
+}
+
+// UpdateEvaluationPromptId sets the "evaluationPromptId" field to the value that was provided on create.
+func (u *EvaluationUpsert) UpdateEvaluationPromptId() *EvaluationUpsert {
+	u.SetExcluded(evaluation.FieldEvaluationPromptId)
 	return u
 }
 
@@ -501,6 +554,20 @@ func (u *EvaluationUpsertOne) SetEvaluationResult(v string) *EvaluationUpsertOne
 func (u *EvaluationUpsertOne) UpdateEvaluationResult() *EvaluationUpsertOne {
 	return u.Update(func(s *EvaluationUpsert) {
 		s.UpdateEvaluationResult()
+	})
+}
+
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (u *EvaluationUpsertOne) SetEvaluationPromptId(v uuid.UUID) *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetEvaluationPromptId(v)
+	})
+}
+
+// UpdateEvaluationPromptId sets the "evaluationPromptId" field to the value that was provided on create.
+func (u *EvaluationUpsertOne) UpdateEvaluationPromptId() *EvaluationUpsertOne {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateEvaluationPromptId()
 	})
 }
 
@@ -796,6 +863,20 @@ func (u *EvaluationUpsertBulk) SetEvaluationResult(v string) *EvaluationUpsertBu
 func (u *EvaluationUpsertBulk) UpdateEvaluationResult() *EvaluationUpsertBulk {
 	return u.Update(func(s *EvaluationUpsert) {
 		s.UpdateEvaluationResult()
+	})
+}
+
+// SetEvaluationPromptId sets the "evaluationPromptId" field.
+func (u *EvaluationUpsertBulk) SetEvaluationPromptId(v uuid.UUID) *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.SetEvaluationPromptId(v)
+	})
+}
+
+// UpdateEvaluationPromptId sets the "evaluationPromptId" field to the value that was provided on create.
+func (u *EvaluationUpsertBulk) UpdateEvaluationPromptId() *EvaluationUpsertBulk {
+	return u.Update(func(s *EvaluationUpsert) {
+		s.UpdateEvaluationPromptId()
 	})
 }
 

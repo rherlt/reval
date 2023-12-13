@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Evaluation is the client for interacting with the Evaluation builders.
 	Evaluation *EvaluationClient
+	// EvaluationPrompt is the client for interacting with the EvaluationPrompt builders.
+	EvaluationPrompt *EvaluationPromptClient
 	// Request is the client for interacting with the Request builders.
 	Request *RequestClient
 	// Response is the client for interacting with the Response builders.
@@ -154,6 +156,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Evaluation = NewEvaluationClient(tx.config)
+	tx.EvaluationPrompt = NewEvaluationPromptClient(tx.config)
 	tx.Request = NewRequestClient(tx.config)
 	tx.Response = NewResponseClient(tx.config)
 	tx.Scenario = NewScenarioClient(tx.config)
