@@ -365,15 +365,17 @@ func GetActivePrompt(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	activePromptId, err := client.Configuration.
+	activeEvalPrompt, err := client.Configuration.
 		Query().
 		Where(configuration.Key("active_human_eval_prompt")).
-		FirstID(ctx)
+		First(ctx)
 
 	if err != nil {
 		fmt.Errorf("failed to get active prompt from database: %w", err)
 		return "", err
 	}
+
+	activePromptId, err := uuid.Parse(activeEvalPrompt.Value)
 
 	prompt, err := client.EvaluationPrompt.
 		Query().
