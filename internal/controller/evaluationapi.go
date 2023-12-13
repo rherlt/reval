@@ -81,9 +81,15 @@ func (si EvaluationApiServerInterface) GetEvaluation(c *gin.Context, params eval
 		fmt.Println(err)
 	}
 
+	prompt, err := persistence.GetActivePrompt(ctx)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	var respBody = evaluationapi.GetEvaluationResponse{
 		Id:               response.ID.String(),
-		EvaluationPrompt: "Hallo das ist mein Prompt",
+		EvaluationPrompt: prompt,
 		Response: evaluationapi.Message{
 			From:    response.From,
 			Subject: response.Subject,

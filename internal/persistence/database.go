@@ -13,7 +13,9 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rherlt/reval/ent"
+	"github.com/rherlt/reval/ent/configuration"
 	"github.com/rherlt/reval/ent/evaluation"
+	"github.com/rherlt/reval/ent/evaluationprompt"
 	"github.com/rherlt/reval/ent/request"
 	"github.com/rherlt/reval/ent/response"
 	"github.com/rherlt/reval/ent/scenario"
@@ -354,4 +356,29 @@ func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount in
 	}
 
 	return result[:]
+}
+
+func GetActivePrompt(ctx context.Context) (string, error) {
+	client, err := GetClient()
+	if err != nil {
+		fmt.Errorf("failed to get database client: %w", err)
+		return "", err
+	}
+
+	activePromptId, err := client.Configuration.
+		Query().
+		Where(configuration.Key("active_human_eval_prompt")).
+		FirstID(ctx)
+
+	if err != nil {
+		fmt.Errorf("failed to get active prompt from database: %w", err)
+		return "", err
+	}
+
+	prompt, err := client.EvaluationPrompt.
+		Query().
+		Where(evaluationprompt.ID(activePromptId)).
+		First(ctx)
+
+	return prompt.Prompt, err
 }
