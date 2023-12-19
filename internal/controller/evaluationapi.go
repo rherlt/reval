@@ -129,12 +129,18 @@ func (si EvaluationApiServerInterface) PostEvaluation(c *gin.Context, params eva
 	sub := c.GetStringMap(oidc.OidcUserClaimsKey)["sub"].(string)
 	name := c.GetStringMap(oidc.OidcUserClaimsKey)["name"].(string)
 
+	evalPromptId, err := persistence.GetActivePromptId(ctx)
+	if err != nil {
+		http.Error(c.Writer, "error while getting active prompt ID", http.StatusInternalServerError)
+		return
+	}
+
 	userId, err := persistence.UpsertUser(ctx, sub, name, config.Current.Oidc_Authority)
 	if err != nil {
 		http.Error(c.Writer, "error while upserting user", http.StatusInternalServerError)
 		return
 	}
-	evaluation, err := persistence.CreateEvaluationForResponseId(ctx, requestBody.Id, string(requestBody.EvaluationResult), userId)
+	evaluation, err := persistence.CreateEvaluationForResponseId(ctx, requestBody.Id, string(requestBody.EvaluationResult), userId, evalPromptId)
 	if err != nil {
 		http.Error(c.Writer, "error while inserting evaluation", http.StatusInternalServerError)
 		return

@@ -276,7 +276,7 @@ func GetDemoUser(ctx context.Context) (*ent.User, error) {
 	return user, err
 }
 
-func CreateEvaluationForResponseId(ctx context.Context, responseId string, evaluationResult string, userId uuid.UUID) (*ent.Evaluation, error) {
+func CreateEvaluationForResponseId(ctx context.Context, responseId string, evaluationResult string, userId uuid.UUID, evalPromptId uuid.UUID) (*ent.Evaluation, error) {
 
 	response, err := GetResponseById(ctx, uuid.MustParse(responseId))
 	if err != nil {
@@ -294,6 +294,7 @@ func CreateEvaluationForResponseId(ctx context.Context, responseId string, evalu
 		SetResponseID(response.ID).
 		SetEvaluationResult(evaluationResult).
 		SetDate(time.Now()).
+		SetEvaluationPromptId(evalPromptId).
 		Save(ctx)
 
 	if err != nil {
@@ -356,6 +357,33 @@ func ProgressStatistics(ctx context.Context, scenarioId uuid.UUID, totalCount in
 	}
 
 	return result[:]
+}
+
+func GetActivePromptId(ctx context.Context) (uuid.UUID, error) {
+	client, err := GetClient()
+	if err != nil {
+		fmt.Errorf("failed to get database client: %w", err)
+		return uuid.Nil, err
+	}
+
+	activeEvalPrompt, err := client.Configuration.
+		Query().
+		Where(configuration.Key("active_human_eval_prompt")).
+		First(ctx)
+
+	if err != nil {
+		fmt.Errorf("failed to get active prompt from database: %w", err)
+		return uuid.Nil, err
+	}
+
+	activePromptId, err := uuid.Parse(activeEvalPrompt.Value)
+
+	prompt, err := client.EvaluationPrompt.
+		Query().
+		Where(evaluationprompt.ID(activePromptId)).
+		First(ctx)
+
+	return prompt.ID, err
 }
 
 func GetActivePrompt(ctx context.Context) (string, error) {
